@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>폼 요소 — 반응형 학습</title>
+<link rel="stylesheet" href="../resources/css/token.css">
+<link rel="stylesheet" href="../resources/css/common.css">
+<style>
+/* ================================================================
+   ★ 폼 페이지 — 반응형 폼 레이아웃
+   학습 포인트:
+   - form-row: 모바일 1열 → 태블릿+ 2열
+   - form-row-3: 모바일 1열 → 576px+ 3열
+   - 전화번호 그룹: flex로 3등분
+   - 주소: input-group 패턴
+   - 약관 영역: 스크롤 박스
+   ================================================================ */
+
+/* 폼 카드 */
+.form-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  margin-bottom: 1.5rem; /* 24px */
+}
+.form-card-head {
+  padding: 1rem 1.5rem;   /* 16px 24px */
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;            /* 8px */
+}
+.form-card-head h3 {
+  font-size: 1.125rem;    /* 18px */
+  font-weight: 700;
+}
+.form-card-head .step {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #fff;
+  font-size: 0.75rem;  /* 12px */
+  font-weight: 700;
+  flex-shrink: 0;
+}
+.form-card-body {
+  padding: 1.5rem;  /* 24px */
+}
+
+/* 전화번호 그룹 */
+.phone-group {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;  /* 8px */
+}
+.phone-group .form-input { flex: 1; text-align: center; }
+.phone-group select.form-input {
+  max-width: 100px;
+  text-align: left;
+}
+.phone-dash {
+  color: var(--text-muted);
+  flex-shrink: 0;
+  user-select: none;
+}
+
+/* 약관 박스 */
+.terms-box {
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 1rem;          /* 16px */
+  max-height: 160px;
+  overflow-y: auto;
+  font-size: 0.75rem;     /* 12px */
+  color: var(--text-sub);
+  line-height: 1.7;
+  background: var(--surface-alt);
+  margin-bottom: 1rem;    /* 16px */
+}
+
+/* 약관 체크 리스트 */
+.agree-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;  /* 8px */
+}
+.agree-all {
+  font-weight: 700;
+  font-size: 1rem;         /* 16px */
+  padding-bottom: 0.5rem; /* 8px */
+  border-bottom: 1px solid var(--border);
+  margin-bottom: 0.25rem; /* 4px */
+}
+
+</style>
+</head>
+<body>
+
+<!-- 헤더 -->
+<header class="header">
+  <div class="header-inner">
+    <a href="01-main.html" class="logo">RWD Study</a>
+    <button class="menu-toggle" onclick="document.querySelector('.gnb').classList.toggle('open')" aria-label="메뉴">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </button>
+    <nav class="gnb">
+      <a href="01-main.html">메인</a>
+      <a href="02-notice.html">공지사항</a>
+      <a href="03-form.html" class="active">폼 요소</a>
+      <a href="04-cards.html">카드 섹션</a>
+      <a href="05-products.html">상품 리스트</a>
+    </nav>
+  </div>
+</header>
+
+<!-- 페이지 헤더 -->
+<div class="page-header-area">
+  <div class="container">
+    <p class="label mb-sm">FORM ELEMENTS</p>
+    <h1 class="page-title">회원가입</h1>
+    <p class="page-desc" style="margin-bottom:0;">반응형 폼 레이아웃: 모바일 1열 → 태블릿+ 2열/3열 그리드 전환</p>
+  </div>
+</div>
+
+<!-- 서브 레이아웃 -->
+<div class="sub-layout">
+  <nav class="lnb">
+    <div class="lnb-inner">
+      <a href="#" class="active">회원가입</a>
+      <a href="#">정보수정</a>
+      <a href="#">비밀번호 변경</a>
+      <a href="#">1:1 문의</a>
+      <a href="#">설정</a>
+    </div>
+  </nav>
+
+  <main class="sub-content">
+
+    <!-- ★ STEP 1: 기본 정보 -->
+    <div class="form-card fade-in">
+      <div class="form-card-head">
+        <span class="step">1</span>
+        <h3>기본 정보</h3>
+      </div>
+      <div class="form-card-body">
+        <!-- ★ 2열 그리드 -->
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">이름 <span class="req">*</span></label>
+            <input type="text" class="form-input" placeholder="이름을 입력하세요">
+          </div>
+          <div class="form-group">
+            <label class="form-label">아이디 <span class="req">*</span></label>
+            <div class="input-group">
+              <input type="text" class="form-input" placeholder="영문, 숫자 6~20자">
+              <button class="btn btn-outline">중복확인</button>
+            </div>
+            <p class="form-hint success">✓ 사용 가능한 아이디입니다.</p>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label class="form-label">비밀번호 <span class="req">*</span></label>
+            <input type="password" class="form-input" placeholder="영문+숫자+특수문자 8자 이상">
+            <p class="form-hint">영문, 숫자, 특수문자 조합 8자 이상</p>
+          </div>
+          <div class="form-group">
+            <label class="form-label">비밀번호 확인 <span class="req">*</span></label>
+            <input type="password" class="form-input" placeholder="비밀번호를 다시 입력하세요">
+            <p class="form-hint error">✕ 비밀번호가 일치하지 않습니다.</p>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">이메일 <span class="req">*</span></label>
+          <!-- ★ 3열 그리드 -->
+          <div class="form-row-3">
+            <input type="text" class="form-input" placeholder="이메일">
+            <div style="display:flex;align-items:center;justify-content:center;color:#9B978F;">@</div>
+            <select class="form-input">
+              <option>직접입력</option>
+              <option>gmail.com</option>
+              <option>naver.com</option>
+              <option>daum.net</option>
+              <option>kakao.com</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">휴대폰 번호 <span class="req">*</span></label>
+          <div class="phone-group">
+            <select class="form-input">
+              <option>010</option>
+              <option>011</option>
+              <option>016</option>
+            </select>
+            <span class="phone-dash">–</span>
+            <input type="tel" class="form-input" placeholder="0000" maxlength="4">
+            <span class="phone-dash">–</span>
+            <input type="tel" class="form-input" placeholder="0000" maxlength="4">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">생년월일</label>
+          <div class="form-row-3">
+            <input type="text" class="form-input" placeholder="YYYY" maxlength="4">
+            <select class="form-input">
+              <option value="">월</option>
+              <option>01</option><option>02</option><option>03</option>
+              <option>04</option><option>05</option><option>06</option>
+              <option>07</option><option>08</option><option>09</option>
+              <option>10</option><option>11</option><option>12</option>
+            </select>
+            <input type="text" class="form-input" placeholder="DD" maxlength="2">
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">성별</label>
+          <div class="form-check-group">
+            <label class="form-check"><input type="radio" name="gender" checked> 남성</label>
+            <label class="form-check"><input type="radio" name="gender"> 여성</label>
+            <label class="form-check"><input type="radio" name="gender"> 선택 안함</label>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ★ STEP 2: 주소 -->
+    <div class="form-card fade-in delay-1">
+      <div class="form-card-head">
+        <span class="step">2</span>
+        <h3>주소 정보</h3>
+      </div>
+      <div class="form-card-body">
+        <div class="form-group">
+          <label class="form-label">주소 <span class="req">*</span></label>
+          <div class="input-group mb-sm">
+            <input type="text" class="form-input" placeholder="우편번호" style="max-width:160px;" disabled>
+            <button class="btn btn-primary">주소 검색</button>
+          </div>
+          <input type="text" class="form-input mb-sm" placeholder="기본주소" disabled>
+          <input type="text" class="form-input" placeholder="상세주소를 입력하세요">
+        </div>
+      </div>
+    </div>
+
+    <!-- ★ STEP 3: 추가 정보 -->
+    <div class="form-card fade-in delay-2">
+      <div class="form-card-head">
+        <span class="step">3</span>
+        <h3>추가 정보</h3>
+      </div>
+      <div class="form-card-body">
+        <div class="form-group">
+          <label class="form-label">프로필 사진</label>
+          <div class="file-upload">
+            <div class="file-upload-icon">📁</div>
+            <div class="file-upload-text">파일을 드래그하거나 클릭하세요</div>
+            <div class="file-upload-sub">JPG, PNG / 최대 5MB</div>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">자기소개</label>
+          <textarea class="form-input" placeholder="간단한 자기소개를 입력하세요 (선택)"></textarea>
+          <p class="form-hint">0 / 200자</p>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">알림 설정</label>
+          <div class="toggle-wrap">
+            <div class="toggle-label">
+              이메일 알림
+              <small>서비스 업데이트, 혜택 정보를 이메일로 받습니다</small>
+            </div>
+            <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+          </div>
+          <div class="toggle-wrap">
+            <div class="toggle-label">
+              SMS 알림
+              <small>주문/배송 상태를 문자로 받습니다</small>
+            </div>
+            <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+          </div>
+          <div class="toggle-wrap">
+            <div class="toggle-label">
+              마케팅 수신 동의
+              <small>프로모션, 이벤트 안내 (선택)</small>
+            </div>
+            <div class="toggle" onclick="this.classList.toggle('on')"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ★ STEP 4: 약관 동의 -->
+    <div class="form-card fade-in delay-3">
+      <div class="form-card-head">
+        <span class="step">4</span>
+        <h3>약관 동의</h3>
+      </div>
+      <div class="form-card-body">
+        <div class="terms-box">
+          제 1 조 (목적) 이 약관은 회사가 제공하는 서비스의 이용과 관련하여 회사와 회원 간의 권리, 의무 및 책임사항, 기타 필요한 사항을 규정함을 목적으로 합니다. 제 2 조 (정의) ① "서비스"란 회사가 제공하는 모든 서비스를 의미합니다. ② "회원"이란 회사와 서비스 이용 계약을 체결하고 회원 아이디를 부여받은 자를 의미합니다. ③ "아이디(ID)"란 회원의 식별과 서비스 이용을 위해 회원이 설정하고 회사가 승인한 문자 또는 숫자의 조합을 의미합니다. 제 3 조 (약관의 게시와 개정) ① 회사는 이 약관의 내용을 서비스 초기 화면에 게시합니다. ② 회사는 관계 법령을 위배하지 않는 범위에서 이 약관을 개정할 수 있습니다.
+        </div>
+
+        <div class="agree-list">
+          <label class="form-check agree-all">
+            <input type="checkbox" id="agreeAll" onchange="document.querySelectorAll('.agree-item').forEach(c=>c.checked=this.checked)">
+            전체 동의합니다
+          </label>
+          <label class="form-check"><input type="checkbox" class="agree-item"> [필수] 이용약관 동의</label>
+          <label class="form-check"><input type="checkbox" class="agree-item"> [필수] 개인정보 수집·이용 동의</label>
+          <label class="form-check"><input type="checkbox" class="agree-item"> [필수] 만 14세 이상 확인</label>
+          <label class="form-check"><input type="checkbox" class="agree-item"> [선택] 마케팅 정보 수신 동의</label>
+        </div>
+      </div>
+    </div>
+
+    <!-- 버튼 -->
+    <div class="btn-group mt-lg">
+      <button class="btn btn-outline btn-lg" style="min-width:160px;">취소</button>
+      <button class="btn btn-primary btn-lg" style="min-width:160px;">가입하기</button>
+    </div>
+
+  </main>
+</div>
+
+<!-- 푸터 -->
+<footer class="footer">
+  <div class="container">
+    <p class="footer-copy">© 2026 RWD Study. 반응형 웹 학습 목적.</p>
+  </div>
+</footer>
+
+</body>
+</html>

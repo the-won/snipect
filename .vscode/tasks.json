@@ -1,0 +1,30 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "UI: 스니펫 생성",
+      "type": "shell",
+      "command": "node scripts/ui-kit.js gen",
+      "problemMatcher": []
+    },
+    {
+      // 결과가 문제 패널과 편집기 밑줄로 표시된다
+      "label": "UI: 토큰 하드코딩 검사",
+      "type": "shell",
+      "command": "node scripts/ui-kit.js check",
+      "presentation": { "reveal": "silent" },
+      "problemMatcher": {
+        "owner": "ui-kit",
+        "fileLocation": ["relative", "${workspaceFolder}"],
+        "severity": "warning",
+        "pattern": {
+          "regexp": "^(.+?):(\\d+):(\\d+): (.+)$",
+          "file": 1,
+          "line": 2,
+          "column": 3,
+          "message": 4
+        }
+      }
+    }
+  ]
+}

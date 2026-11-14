@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>기타 컴포넌트 — 컴포넌트 가이드</title>
+<link rel="stylesheet" href="../resources/css/token.css">
+<link rel="stylesheet" href="../resources/css/common.css">
+<link rel="stylesheet" href="../resources/css/guide.css">
+</head>
+<body>
+
+<header class="header">
+  <div class="header-inner">
+    <a href="index.html" class="logo">UI Guide</a>
+    <nav class="guide-nav">
+      <a href="token.html">토큰</a>
+      <a href="btn.html">버튼</a>
+      <a href="form.html">폼 요소</a>
+      <a href="components.html" class="active">기타</a>
+    </nav>
+  </div>
+</header>
+
+<main class="guide-main">
+  <p class="label mb-sm">COMPONENT</p>
+  <h1 class="page-title" style="font-size:2rem;">기타 공통 컴포넌트</h1>
+  <p class="page-desc">버튼·폼 외에 여러 페이지에서 반복 사용되는 컴포넌트입니다.</p>
+
+  <section class="guide-section">
+    <h2>1. Badge</h2>
+    <p class="guide-desc"><code>.badge</code> + <code>.badge-primary | success | danger | warning</code></p>
+    <div class="guide-demo">
+      <!-- @snippet badge-primary | 배지 Primary -->
+      <span class="badge badge-primary">공지</span>
+      <!-- @end -->
+      <!-- @snippet badge-success | 배지 Success -->
+      <span class="badge badge-success">업데이트</span>
+      <!-- @end -->
+      <!-- @snippet badge-danger | 배지 Danger -->
+      <span class="badge badge-danger">긴급</span>
+      <!-- @end -->
+      <!-- @snippet badge-warning | 배지 Warning -->
+      <span class="badge badge-warning">점검</span>
+      <!-- @end -->
+    </div>
+  </section>
+
+  <section class="guide-section">
+    <h2>2. Tab Filter (칩)</h2>
+    <p class="guide-desc"><code>.tab-filters</code> 안에 <code>.tab-filter</code>. 선택 항목에 <code>.active</code>. 좁은 화면에서는 가로 스크롤됩니다.</p>
+    <div class="guide-demo is-block">
+      <!-- @snippet tab-filters | 탭 필터 (칩) -->
+      <div class="tab-filters">
+        <button type="button" class="tab-filter active">전체</button>
+        <button type="button" class="tab-filter">공지</button>
+        <button type="button" class="tab-filter">점검</button>
+        <button type="button" class="tab-filter">이벤트</button>
+      </div>
+      <!-- @end -->
+    </div>
+  </section>
+
+  <section class="guide-section">
+    <h2>3. Pagination</h2>
+    <p class="guide-desc">현재 페이지는 <code>span.active</code>, 나머지는 <code>a</code>.</p>
+    <div class="guide-demo is-block">
+      <!-- @snippet pagination | 페이지네이션 -->
+      <div class="pagination">
+        <a href="#">‹</a>
+        <span class="active">1</span>
+        <a href="#">2</a>
+        <a href="#">3</a>
+        <a href="#">›</a>
+      </div>
+      <!-- @end -->
+    </div>
+  </section>
+
+  <section class="guide-section">
+    <h2>4. Card</h2>
+    <p class="guide-desc"><code>.card</code> &gt; <code>.card-img</code> + <code>.card-body</code>. 그리드는 <code>.card-grid</code> (1 → 2 → 3열).</p>
+    <div class="guide-demo is-block">
+      <!-- @snippet card | 카드 (이미지 + 본문) -->
+      <div class="card">
+        <div class="card-img"></div>
+        <div class="card-body">
+          <h3>카드 제목</h3>
+          <p class="text-muted">카드 설명 문구가 들어갑니다.</p>
+        </div>
+      </div>
+      <!-- @end -->
+    </div>
+  </section>
+
+  <section class="guide-section">
+    <h2>5. Table</h2>
+    <p class="guide-desc"><code>.table-wrap</code> &gt; <code>table.tbl</code>. 좁은 화면에서 가로 스크롤됩니다.</p>
+    <div class="guide-demo is-block">
+      <!-- @snippet tbl | 반응형 테이블 -->
+      <div class="table-wrap">
+        <table class="tbl">
+          <thead><tr><th>번호</th><th>제목</th><th>날짜</th></tr></thead>
+          <tbody>
+            <tr><td>2</td><td>서비스 개편 안내</td><td>2026.05.15</td></tr>
+            <tr><td>1</td><td>정기 점검 안내</td><td>2026.05.13</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <!-- @end -->
+    </div>
+  </section>
+
+  <section class="guide-section">
+    <h2>6. Typography</h2>
+    <div class="guide-demo is-block">
+      <p class="label mb-sm">LABEL</p>
+      <h1 class="page-title">page-title</h1>
+      <p class="page-desc" style="margin-bottom:0;">page-desc 페이지 설명 문구</p>
+      <h2 class="section-title mt-lg" style="margin-bottom:0;">section-title</h2>
+    </div>
+  </section>
+
+  <section class="guide-section">
+    <h2>클래스 정리</h2>
+    <div class="guide-table-wrap">
+      <table class="guide-table">
+        <thead><tr><th>클래스</th><th>설명</th></tr></thead>
+        <tbody>
+          <tr><td><code>.badge-*</code></td><td>작은 상태 라벨 (primary / success / danger / warning)</td></tr>
+          <tr><td><code>.tab-filters</code> <code>.tab-filter</code></td><td>알약형 필터 버튼 그룹</td></tr>
+          <tr><td><code>.pagination</code></td><td>페이지 번호 이동</td></tr>
+          <tr><td><code>.card</code> <code>.card-img</code> <code>.card-body</code> <code>.card-grid</code></td><td>카드와 반응형 그리드</td></tr>
+          <tr><td><code>.table-wrap</code> <code>.tbl</code></td><td>반응형 테이블</td></tr>
+          <tr><td><code>.page-title</code> <code>.page-desc</code> <code>.section-title</code> <code>.label</code></td><td>타이포그래피</td></tr>
+          <tr><td><code>.container</code> <code>.section</code> <code>.page-header-area</code></td><td>레이아웃</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</main>
+
+<script src="../resources/js/guide.js"></script>
+</body>
+</html>

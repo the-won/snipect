@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>개요 — 컴포넌트 가이드</title>
+<link rel="stylesheet" href="../resources/css/token.css">
+<link rel="stylesheet" href="../resources/css/common.css">
+<link rel="stylesheet" href="../resources/css/guide.css">
+</head>
+<body>
+
+<header class="header">
+  <div class="header-inner">
+    <a href="index.html" class="logo">UI Guide</a>
+    <nav class="guide-nav">
+      <a href="token.html">토큰</a>
+      <a href="btn.html">버튼</a>
+      <a href="form.html">폼 요소</a>
+      <a href="components.html">기타</a>
+    </nav>
+  </div>
+</header>
+
+<main class="guide-main">
+  <p class="label mb-sm">UI GUIDE</p>
+  <h1 class="page-title" style="font-size:2rem;">컴포넌트 가이드</h1>
+  <p class="page-desc">현재 5개 페이지(<code>html/</code>)에서 반복되는 UI를 분석해 공통화한 컴포넌트 문서입니다.</p>
+
+  <div class="card-grid">
+    <a href="token.html" class="card"><div class="card-body"><h3>디자인 토큰</h3><p class="text-muted">색상·타이포·간격·라운드 변수 (token.css)</p></div></a>
+    <a href="btn.html" class="card"><div class="card-body"><h3>버튼</h3><p class="text-muted">primary / outline / danger, 크기, 상태, 그룹</p></div></a>
+    <a href="form.html" class="card"><div class="card-body"><h3>폼 요소</h3><p class="text-muted">input, select, textarea, 체크/라디오, 토글, 파일, 그리드</p></div></a>
+    <a href="components.html" class="card"><div class="card-body"><h3>기타 컴포넌트</h3><p class="text-muted">배지, 탭필터, 페이지네이션, 카드, 테이블, 타이포</p></div></a>
+  </div>
+
+  <section class="guide-section mt-xl">
+    <h2>폴더 구조</h2>
+    <pre class="guide-code" style="border-radius:var(--radius-lg);">/
+├─ html/                서비스 페이지 (01-main ~ 05-products)
+├─ guide/               컴포넌트 가이드 (이 문서)
+└─ resources/
+   ├─ css/
+   │  ├─ token.css      디자인 토큰 (먼저 로드)
+   │  ├─ common.css     공통 컴포넌트
+   │  └─ guide.css      가이드 문서 전용
+   └─ js/guide.js       가이드 코드 블록 자동 생성</pre>
+    <p class="guide-note">로드 순서: <code>token.css</code> → <code>common.css</code> → (페이지 전용 &lt;style&gt;)</p>
+  </section>
+</main>
+</body>
+</html>

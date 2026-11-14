@@ -1,0 +1,12 @@
+{
+  "liveServer.settings.port": 5501,
+
+  // var(-- 입력 시 토큰 목록 추천 (확장: CSS Variable Autocomplete)
+  "cssVariables.lookupFiles": ["**/resources/css/token.css"],
+
+  // class=" 입력 시 공통 클래스 추천 (확장: HTML CSS Support)
+  "css.styleSheets": ["resources/css/common.css"],
+
+  // 컴포넌트 스니펫(btn-primary 등)이 Emmet 보다 먼저 보이게 한다
+  "editor.snippetSuggestions": "top"
+}

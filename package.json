@@ -1,0 +1,9 @@
+{
+  "name": "files35345",
+  "private": true,
+  "scripts": {
+    "gen:vscode": "node scripts/ui-kit.js gen",
+    "gen:vscode:check": "node scripts/ui-kit.js gen --check",
+    "check:tokens": "node scripts/ui-kit.js check"
+  }
+}

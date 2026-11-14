@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>폼 요소 — 컴포넌트 가이드</title>
+<link rel="stylesheet" href="../resources/css/token.css">
+<link rel="stylesheet" href="../resources/css/common.css">
+<link rel="stylesheet" href="../resources/css/guide.css">
+</head>
+<body>
+
+<header class="header">
+  <div class="header-inner">
+    <a href="index.html" class="logo">UI Guide</a>
+    <nav class="guide-nav">
+      <a href="token.html">토큰</a>
+      <a href="btn.html">버튼</a>
+      <a href="form.html" class="active">폼 요소</a>
+      <a href="components.html">기타</a>
+    </nav>
+  </div>
+</header>
+
+<main class="guide-main">
+  <p class="label mb-sm">COMPONENT</p>
+  <h1 class="page-title" style="font-size:2rem;">Form Elements</h1>
+  <p class="page-desc">라벨(<code>.form-label</code>) + 컨트롤 + 힌트(<code>.form-hint</code>)를 <code>.form-group</code> 으로 묶는 것이 기본 구조입니다.</p>
+
+  <section class="guide-section">
+    <h2>1. 텍스트 입력</h2>
+    <p class="guide-desc"><code>.form-input</code> — input / select / textarea 공통 클래스. 필수 표시는 <code>&lt;span class="req"&gt;</code>.</p>
+    <div class="guide-demo is-block">
+      <!-- @snippet form-input | 텍스트 입력 (라벨 + 필수 표시) -->
+      <div class="form-group">
+        <label class="form-label" for="g-name">이름 <span class="req">*</span></label>
+        <input type="text" id="g-name" class="form-input" placeholder="이름을 입력하세요">
+      </div>
+      <!-- @end -->
+      <!-- @snippet form-input-hint | 텍스트 입력 + 힌트 문구 -->
+      <div class="form-group">
+        <label class="form-label" for="g-pw">비밀번호</label>
+        <input type="password" id="g-pw" class="form-input" placeholder="영문+숫자+특수문자 8자 이상">
+        <p class="form-hint">영문, 숫자, 특수문자 조합 8자 이상</p>
+      </div>
+      <!-- @end -->
+    </div>
+  </section>
+
+  <section class="guide-section">
+    <h2>2. 상태 (Error / Success / Disabled)</h2>
+    <p class="guide-desc">입력창에 <code>.is-error</code> / <code>.is-success</code>, 메시지에 <code>.error</code> / <code>.success</code> 를 함께 붙입니다.</p>
+    <div class="guide-demo is-block">
+      <!-- @snippet form-input-error | 입력 에러 상태 -->
+      <div class="form-group">
+        <label class="form-label">비밀번호 확인</label>
+        <input type="password" class="form-input is-error" value="1234">
+        <p class="form-hint error">✕ 비밀번호가 일치하지 않습니다.</p>
+      </div>
+      <!-- @end -->
+      <!-- @snippet form-input-success | 입력 성공 상태 -->
+      <div class="form-group">
+        <label class="form-label">아이디</label>
+        <input type="text" class="form-input is-success" value="publisher01">
+        <p class="form-hint success">✓ 사용 가능한 아이디입니다.</p>
+      </div>
+      <!-- @end -->
+      <!-- @snippet form-input-disabled | 입력 비활성 상태 -->
+      <div class="form-group">
+        <label class="form-label">우편번호</label>
+        <input type="text" class="form-input" placeholder="우편번호" disabled>
+      </div>
+      <!-- @end -->
+    </div>
+  </section>
+
+  <section class="guide-section">
+    <h2>3. Select / Textarea</h2>
+    <p class="guide-desc">select 는 기본 화살표를 제거하고 커스텀 화살표를 사용합니다. 작은 select 는 <code>.form-input-sm</code>.</p>
+    <div class="guide-demo is-block">
+      <!-- @snippet form-select | 셀렉트 -->
+      <div class="form-group">
+        <label class="form-label">이메일 도메인</label>
+        <select class="form-input">
+          <option>직접입력</option>
+          <option>gmail.com</option>
+          <option>naver.com</option>
+        </select>
+      </div>
+      <!-- @end -->
+      <!-- @snippet form-select-sm | 작은 셀렉트 (정렬·필터) -->
+      <div class="form-group">
+        <label class="form-label">정렬 (small)</label>
+        <select class="form-input form-input-sm">
+          <option>최신순</option>
+          <option>조회순</option>
+        </select>
+      </div>
+      <!-- @end -->
+      <!-- @snippet form-textarea | 텍스트 영역 + 글자 수 힌트 -->
+      <div class="form-group">
+        <label class="form-label">자기소개</label>
+        <textarea class="form-input" placeholder="간단한 자기소개를 입력하세요 (선택)"></textarea>
+        <p class="form-hint">0 / 200자</p>
+      </div>
+      <!-- @end -->
+    </div>
+  </section>
+
+  <section class="guide-section">
+    <h2>4. 체크박스 / 라디오</h2>
+    <p class="guide-desc"><code>label.form-check</code> 로 감싸면 라벨 클릭 영역과 정렬이 자동 처리됩니다. 가로 나열은 <code>.form-check-group</code>.</p>
+    <div class="guide-demo is-block">
+      <!-- @snippet form-radio | 라디오 그룹 (가로 나열) -->
+      <div class="form-group">
+        <label class="form-label">성별</label>
+        <div class="form-check-group">
+          <label class="form-check"><input type="radio" name="g-gender" checked> 남성</label>
+          <label class="form-check"><input type="radio" name="g-gender"> 여성</label>
+          <label class="form-check"><input type="radio" name="g-gender"> 선택 안함</label>
+        </div>
+      </div>
+      <!-- @end -->
+      <div class="form-group">
+        <!-- @snippet form-check | 체크박스 -->
+        <label class="form-check"><input type="checkbox" checked> [필수] 이용약관 동의</label>
+        <!-- @end -->
+      </div>
+    </div>
+  </section>
+
+  <section class="guide-section">
+    <h2>5. 토글 스위치</h2>
+    <p class="guide-desc"><code>.toggle</code> 에 <code>.on</code> 클래스를 토글합니다. (접근성 필요 시 <code>role="switch"</code> + <code>aria-checked</code> 추가)</p>
+    <div class="guide-demo is-block">
+      <!-- @snippet toggle | 토글 스위치 (설명 + 스위치) -->
+      <div class="toggle-wrap">
+        <div class="toggle-label">
+          이메일 알림
+          <small>서비스 업데이트, 혜택 정보를 이메일로 받습니다</small>
+        </div>
+        <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+      </div>
+      <!-- @end -->
+      <div class="toggle-wrap">
+        <div class="toggle-label">
+          마케팅 수신 동의
+          <small>프로모션, 이벤트 안내 (선택)</small>
+        </div>
+        <div class="toggle" onclick="this.classList.toggle('on')"></div>
+      </div>
+    </div>
+  </section>
+
+  <section class="guide-section">
+    <h2>6. 파일 업로드</h2>
+    <p class="guide-desc"><code>.file-upload</code> — 점선 영역. 실제 <code>input[type=file]</code> 과 연결해서 사용합니다.</p>
+    <div class="guide-demo is-block">
+      <!-- @snippet file-upload | 파일 업로드 영역 -->
+      <div class="file-upload">
+        <div class="file-upload-icon">📁</div>
+        <div class="file-upload-text">파일을 드래그하거나 클릭하세요</div>
+        <div class="file-upload-sub">JPG, PNG / 최대 5MB</div>
+      </div>
+      <!-- @end -->
+    </div>
+  </section>
+
+  <section class="guide-section">
+    <h2>7. 그리드 레이아웃</h2>
+    <p class="guide-desc"><code>.form-row</code> 모바일 1열 → 768px+ 2열 / <code>.form-row-3</code> 모바일 1열 → 576px+ 3열</p>
+    <div class="guide-demo is-block">
+      <!-- @snippet form-row | 폼 2열 그리드 (768px 이상) -->
+      <div class="form-row">
+        <div class="form-group">
+          <label class="form-label">비밀번호</label>
+          <input type="password" class="form-input">
+        </div>
+        <div class="form-group">
+          <label class="form-label">비밀번호 확인</label>
+          <input type="password" class="form-input">
+        </div>
+      </div>
+      <!-- @end -->
+      <!-- @snippet form-row-3 | 폼 3열 그리드 (576px 이상) -->
+      <div class="form-row-3">
+        <input type="text" class="form-input" placeholder="YYYY">
+        <select class="form-input"><option>월</option><option>01</option></select>
+        <input type="text" class="form-input" placeholder="DD">
+      </div>
+      <!-- @end -->
+    </div>
+  </section>
+
+  <section class="guide-section">
+    <h2>클래스 정리</h2>
+    <div class="guide-table-wrap">
+      <table class="guide-table">
+        <thead><tr><th>클래스</th><th>대상</th><th>설명</th></tr></thead>
+        <tbody>
+          <tr><td><code>.form-group</code></td><td>래퍼</td><td>라벨+컨트롤+힌트 묶음, 하단 여백 16px</td></tr>
+          <tr><td><code>.form-label</code> <code>.req</code></td><td>label</td><td>14px semibold / 필수 표시(*) 빨간색</td></tr>
+          <tr><td><code>.form-input</code></td><td>input · select · textarea</td><td>기본 입력 스타일, focus 시 링 표시</td></tr>
+          <tr><td><code>.is-error</code> <code>.is-success</code></td><td>.form-input</td><td>검증 상태 테두리 색</td></tr>
+          <tr><td><code>.form-input-sm</code></td><td>.form-input</td><td>작은 크기 (width auto, 12px)</td></tr>
+          <tr><td><code>.form-hint</code> <code>.error</code> <code>.success</code></td><td>p</td><td>12px 보조 문구 / 에러 / 성공</td></tr>
+          <tr><td><code>.form-check</code> <code>.form-check-group</code></td><td>label / 래퍼</td><td>체크박스·라디오 정렬 / 가로 나열</td></tr>
+          <tr><td><code>.toggle-wrap</code> <code>.toggle-label</code> <code>.toggle</code></td><td>토글</td><td>설명 + 스위치 한 줄 구성</td></tr>
+          <tr><td><code>.input-group</code></td><td>래퍼</td><td>입력창 + 버튼 가로 배치</td></tr>
+          <tr><td><code>.form-row</code> <code>.form-row-3</code></td><td>래퍼</td><td>반응형 2열 / 3열 그리드</td></tr>
+          <tr><td><code>.file-upload</code></td><td>div</td><td>파일 업로드 영역</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</main>
+
+<script src="../resources/js/guide.js"></script>
+</body>
+</html>

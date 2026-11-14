@@ -1,0 +1,317 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>공지사항 — 반응형 학습</title>
+<link rel="stylesheet" href="../resources/css/token.css">
+<link rel="stylesheet" href="../resources/css/common.css">
+<style>
+/* ================================================================
+   ★ 공지사항 페이지 — 반응형 테이블 + LNB
+   학습 포인트:
+   - 모바일: LNB가 가로 스크롤 탭
+   - PC: LNB가 사이드바
+   - 테이블: 모바일에서 세로 리스트로 변환
+   ================================================================ */
+
+/* 검색바 */
+.search-bar {
+  display: flex;
+  gap: 0.5rem;      /* 8px */
+  margin-top: 1rem; /* 16px */
+}
+.search-bar .form-input { flex: 1; }
+.search-bar .btn { flex-shrink: 0; }
+
+/* ★ 공지사항 테이블 외부 컨테이너
+   border-collapse: collapse + border-radius를 함께 쓸 때는
+   overflow: hidden 이 필수 — 테이블 모서리를 잘라줌 */
+.notice-list-wrap {
+  border: 1px solid #E5E3DD;
+  border-radius: 12px;
+  overflow: hidden;
+  background: #FFFFFF;
+}
+
+/* 공지사항 테이블 */
+.notice-table {
+  width: 100%;
+  min-width: 0;  /* common.css .tbl의 min-width:600px 무효화 */
+}
+
+/* 열 너비 */
+.col-no   { width: 60px; text-align: center; }
+.col-cat  { width: 90px; }
+.col-date { width: 110px; }
+.col-view { width: 70px; text-align: right; }
+
+.notice-title-cell { font-weight: 500; }
+.notice-title-cell .new {
+  display: inline-block;
+  padding: 1px 5px;
+  font-size: 10px;
+  font-weight: 700;
+  color: #fff;
+  background: var(--danger);
+  border-radius: 3px;
+  margin-left: 6px;
+  vertical-align: 2px;
+}
+
+/* 고정글 배경 */
+.notice-pinned td { background: var(--accent-light); }
+
+/* ★ 모바일(767px 이하): 테이블 → 세로 리스트 변환
+   각 <tr>이 하나의 리스트 아이템처럼 보이게 함 */
+@media (max-width: 767px) {
+  /* table 관련 태그를 block 요소로 전환 */
+  .notice-table,
+  .notice-table thead,
+  .notice-table tbody,
+  .notice-table tr,
+  .notice-table td { display: block; }
+
+  .notice-table thead { display: none; } /* 컬럼 헤더 행 숨김 */
+
+  /* 각 행 = 리스트 아이템 (구분선으로 구분) */
+  .notice-table tbody tr {
+    padding: 0.75rem 1rem; /* 12px 16px */
+    border-bottom: 1px solid #E5E3DD;
+  }
+  .notice-table tbody tr:last-child { border-bottom: none; }
+
+  /* 셀의 개별 border 제거 (행 단위로 처리) */
+  .notice-table td {
+    padding: 0;
+    border-bottom: none;
+    font-size: 0.875rem; /* 14px */
+  }
+
+  /* 번호 열 숨김 */
+  .col-no { display: none; }
+
+  /* 제목: 블록으로 크게 */
+  .notice-title-cell {
+    display: block;
+    font-size: 1rem;   /* 16px */
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+
+  /* 분류·날짜·조회: 한 줄에 가로로 나열 */
+  .col-cat, .col-date, .col-view {
+    display: inline;
+    width: auto;
+    text-align: left;
+    color: var(--text-muted);
+    font-size: 0.75rem; /* 12px */
+  }
+  .col-cat::after  { content: ' · '; }
+  .col-date::after { content: ' · '; }
+
+  /* 고정글: 왼쪽 파란 선으로 강조 */
+  .notice-pinned {
+    border-left: 3px solid var(--accent);
+    padding-left: calc(1rem - 3px); /* 3px 보더만큼 패딩 조정 */
+  }
+  .notice-pinned td { background: none; }
+}
+
+/* 리스트 상단 정보 */
+.list-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;  /* 16px */
+  font-size: 0.875rem;  /* 14px */
+  color: var(--text-muted);
+}
+</style>
+</head>
+<body>
+
+<!-- 헤더 -->
+<header class="header">
+  <div class="header-inner">
+    <a href="01-main.html" class="logo">RWD Study</a>
+    <button class="menu-toggle" onclick="document.querySelector('.gnb').classList.toggle('open')" aria-label="메뉴">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </button>
+    <nav class="gnb">
+      <a href="01-main.html">메인</a>
+      <a href="02-notice.html" class="active">공지사항</a>
+      <a href="03-form.html">폼 요소</a>
+      <a href="04-cards.html">카드 섹션</a>
+      <a href="05-products.html">상품 리스트</a>
+    </nav>
+  </div>
+</header>
+
+<!-- 페이지 헤더 -->
+<div class="page-header-area">
+  <div class="container">
+    <p class="label mb-sm">NOTICE</p>
+    <h1 class="page-title">공지사항</h1>
+    <p class="page-desc" style="margin-bottom:0;">서비스 업데이트, 점검 안내 등을 확인하세요.</p>
+  </div>
+</div>
+
+<!-- ★ 서브 레이아웃: LNB + 콘텐츠 -->
+<div class="sub-layout">
+
+  <!-- ★ LNB: 모바일=가로탭, PC=사이드바 -->
+  <nav class="lnb">
+    <div class="lnb-inner">
+      <a href="#" class="active">전체 공지</a>
+      <a href="#">서비스 안내</a>
+      <a href="#">점검 공지</a>
+      <a href="#">이벤트</a>
+      <a href="#">업데이트</a>
+      <a href="#">FAQ</a>
+    </div>
+  </nav>
+
+  <!-- 콘텐츠 -->
+  <main class="sub-content">
+
+    <!-- 검색 -->
+    <div class="search-bar mb-lg">
+      <select class="form-input" style="max-width:120px;">
+        <option>전체</option>
+        <option>제목</option>
+        <option>내용</option>
+      </select>
+      <input type="text" class="form-input" placeholder="검색어를 입력하세요">
+      <button class="btn btn-primary">검색</button>
+    </div>
+
+    <!-- 필터 탭 -->
+    <div class="tab-filters">
+      <button class="tab-filter active">전체</button>
+      <button class="tab-filter">공지</button>
+      <button class="tab-filter">점검</button>
+      <button class="tab-filter">이벤트</button>
+      <button class="tab-filter">업데이트</button>
+    </div>
+
+    <!-- 리스트 정보 -->
+    <div class="list-info">
+      <span>총 <strong style="color:#1C1C1C">128</strong>건</span>
+      <select class="form-input form-input-sm">
+        <option>최신순</option>
+        <option>조회순</option>
+      </select>
+    </div>
+
+    <!-- ★ 반응형 테이블
+         .notice-list-wrap: 외부 테두리 + 모서리 처리
+         모바일(767px 이하): 세로 리스트로 변환 -->
+    <div class="notice-list-wrap">
+      <table class="tbl notice-table">
+        <thead>
+          <tr>
+            <th class="col-no">번호</th>
+            <th class="col-cat">분류</th>
+            <th>제목</th>
+            <th class="col-date">날짜</th>
+            <th class="col-view">조회</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr class="notice-pinned">
+            <td class="col-no"><span class="badge badge-primary">공지</span></td>
+            <td class="col-cat">서비스</td>
+            <td class="notice-title-cell">[중요] 2026년 하반기 서비스 개편 안내<span class="new">NEW</span></td>
+            <td class="col-date">2026.05.15</td>
+            <td class="col-view">1,284</td>
+          </tr>
+          <tr class="notice-pinned">
+            <td class="col-no"><span class="badge badge-primary">공지</span></td>
+            <td class="col-cat">점검</td>
+            <td class="notice-title-cell">5월 정기 점검 안내 (05.20 02:00~06:00)</td>
+            <td class="col-date">2026.05.13</td>
+            <td class="col-view">856</td>
+          </tr>
+          <tr>
+            <td class="col-no text-muted">128</td>
+            <td class="col-cat"><span class="badge badge-success">업데이트</span></td>
+            <td class="notice-title-cell">v4.2.0 업데이트 — 다크모드 지원<span class="new">NEW</span></td>
+            <td class="col-date">2026.05.12</td>
+            <td class="col-view">432</td>
+          </tr>
+          <tr>
+            <td class="col-no text-muted">127</td>
+            <td class="col-cat">이벤트</td>
+            <td class="notice-title-cell">봄맞이 포인트 2배 적립 이벤트</td>
+            <td class="col-date">2026.05.10</td>
+            <td class="col-view">1,102</td>
+          </tr>
+          <tr>
+            <td class="col-no text-muted">126</td>
+            <td class="col-cat">서비스</td>
+            <td class="notice-title-cell">개인정보 처리방침 변경 사전 안내</td>
+            <td class="col-date">2026.05.08</td>
+            <td class="col-view">523</td>
+          </tr>
+          <tr>
+            <td class="col-no text-muted">125</td>
+            <td class="col-cat"><span class="badge badge-warning">점검</span></td>
+            <td class="notice-title-cell">모바일 앱 긴급 점검 완료 안내</td>
+            <td class="col-date">2026.05.06</td>
+            <td class="col-view">387</td>
+          </tr>
+          <tr>
+            <td class="col-no text-muted">124</td>
+            <td class="col-cat">서비스</td>
+            <td class="notice-title-cell">결제 수단 추가 안내 (네이버페이, 토스)</td>
+            <td class="col-date">2026.05.04</td>
+            <td class="col-view">645</td>
+          </tr>
+          <tr>
+            <td class="col-no text-muted">123</td>
+            <td class="col-cat"><span class="badge badge-success">업데이트</span></td>
+            <td class="notice-title-cell">v4.1.3 핫픽스 — 검색 속도 개선</td>
+            <td class="col-date">2026.05.02</td>
+            <td class="col-view">298</td>
+          </tr>
+          <tr>
+            <td class="col-no text-muted">122</td>
+            <td class="col-cat">이벤트</td>
+            <td class="notice-title-cell">신규 가입 웰컴 쿠폰 지급 안내</td>
+            <td class="col-date">2026.04.28</td>
+            <td class="col-view">1,456</td>
+          </tr>
+          <tr>
+            <td class="col-no text-muted">121</td>
+            <td class="col-cat">서비스</td>
+            <td class="notice-title-cell">고객센터 운영시간 변경 안내</td>
+            <td class="col-date">2026.04.25</td>
+            <td class="col-view">312</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- 페이지네이션 -->
+    <div class="pagination">
+      <a href="#">‹</a>
+      <span class="active">1</span>
+      <a href="#">2</a>
+      <a href="#">3</a>
+      <a href="#">4</a>
+      <a href="#">5</a>
+      <a href="#">›</a>
+    </div>
+  </main>
+</div>
+
+<!-- 푸터 -->
+<footer class="footer">
+  <div class="container">
+    <p class="footer-copy">© 2026 RWD Study. 반응형 웹 학습 목적.</p>
+  </div>
+</footer>
+
+</body>
+</html>

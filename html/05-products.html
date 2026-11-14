@@ -1,0 +1,962 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>상품 리스트 — 반응형 학습</title>
+<link rel="stylesheet" href="../resources/css/token.css">
+<link rel="stylesheet" href="../resources/css/common.css">
+<style>
+/* ================================================================
+   ★ 상품 리스트 페이지 — 반응형 상품 그리드
+   학습 포인트:
+   - 그리드/리스트 뷰 전환
+   - 필터 사이드바: 모바일=토글, PC=사이드
+   - 상품 카드: 이미지 aspect-ratio, 가격 레이아웃
+   - auto-fill + minmax()로 컬럼 수 자동
+   ================================================================ */
+
+/* ★ 상품 레이아웃: 모바일=세로, PC=가로(사이드필터+그리드) */
+.product-layout {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 1rem;      /* 16px */
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;        /* 24px */
+}
+@media (min-width: 768px) {
+  .product-layout { padding: 1.5rem; } /* 24px */
+}
+@media (min-width: 1080px) {
+  .product-layout {
+    flex-direction: row;
+    padding: 2rem;    /* 32px */
+    gap: 2rem;        /* 32px */
+  }
+}
+
+
+/* ================================================================
+   ★ 필터 사이드바
+   ================================================================ */
+
+/* 모바일 필터 토글 버튼 */
+.filter-toggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 0.5rem 1rem;   /* 8px 16px */
+  font-size: 0.875rem;    /* 14px */
+  font-weight: 600;
+  color: var(--text-sub);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--surface);
+}
+@media (min-width: 1080px) {
+  .filter-toggle { display: none; }
+}
+
+/* 필터 패널 */
+.filter-panel {
+  display: none;  /* 모바일: 기본 숨김 */
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 1.5rem;  /* 24px */
+}
+.filter-panel.open { display: block; }
+
+@media (min-width: 1080px) {
+  .filter-panel {
+    display: block !important;  /* PC: 항상 표시 */
+    width: 240px;
+    flex-shrink: 0;
+    position: sticky;
+    /* 헤더(64px) + 여백(24px) = 88px 아래에서 고정 시작 */
+    top: 88px;
+    align-self: flex-start;
+    /* 100vh - 헤더(64px) - 상하패딩(32px) */
+    max-height: calc(100vh - 96px);
+    overflow-y: auto;
+  }
+}
+
+.filter-title {
+  font-size: 1.125rem;  /* 18px */
+  font-weight: 700;
+  margin-bottom: 1.5rem; /* 24px */
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.filter-reset {
+  font-size: 0.75rem;  /* 12px */
+  color: var(--accent);
+  font-weight: 500;
+  cursor: pointer;
+}
+
+/* 필터 그룹 */
+.filter-group {
+  margin-bottom: 1.5rem;   /* 24px */
+  padding-bottom: 1.5rem;  /* 24px */
+  border-bottom: 1px solid var(--border);
+}
+.filter-group:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+  padding-bottom: 0;
+}
+.filter-group-title {
+  font-size: 0.875rem;  /* 14px */
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 0.5rem; /* 8px */
+}
+.filter-option {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;          /* 8px */
+  padding: 4px 0;
+  font-size: 0.875rem;  /* 14px */
+  color: var(--text-sub);
+  cursor: pointer;
+}
+.filter-option input {
+  width: 16px; height: 16px;
+  accent-color: var(--accent);
+  cursor: pointer;
+}
+.filter-count {
+  margin-left: auto;
+  font-size: 0.75rem;  /* 12px */
+  color: var(--text-muted);
+}
+
+/* 가격 범위 입력 */
+.price-range {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;        /* 8px */
+  margin-top: 0.5rem; /* 8px */
+}
+.price-range input {
+  flex: 1;
+  padding: 0.375rem 0.625rem; /* 6px 10px */
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  font-size: 0.75rem;  /* 12px */
+  text-align: center;
+  font-family: 'JetBrains Mono', monospace;
+  color: var(--text);
+  background: var(--surface);
+}
+.price-range span {
+  color: var(--text-muted);
+  font-size: 0.75rem;  /* 12px */
+  flex-shrink: 0;
+}
+
+/* 색상 필터 */
+.color-options {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.color-swatch {
+  width: 28px; height: 28px;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  position: relative;
+}
+.color-swatch:hover { transform: scale(1.15); }
+.color-swatch.active { border-color: var(--accent); }
+.color-swatch.active::after {
+  content: '✓';
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  font-weight: 700;
+  color: #fff;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.4);
+}
+
+
+/* ================================================================
+   ★ 상품 영역
+   ================================================================ */
+.product-area { flex: 1; min-width: 0; }
+
+/* 상단 툴바 */
+.product-toolbar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;    /* 8px */
+  margin-bottom: 1rem; /* 16px */
+}
+.product-count {
+  font-size: 0.875rem;  /* 14px */
+  color: var(--text-muted);
+}
+.product-count strong {
+  color: var(--text);
+  font-weight: 700;
+}
+
+.toolbar-right {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;  /* 8px */
+}
+
+/* 정렬 셀렉트 */
+.sort-select {
+  padding: 0.375rem 2rem 0.375rem 0.625rem; /* 6px 32px 6px 10px */
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  font-size: 0.75rem;   /* 12px */
+  font-weight: 500;
+  color: var(--text-sub);
+  background: var(--surface);
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' fill='%235A5752' viewBox='0 0 16 16'%3E%3Cpath d='M8 11L3 6h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 8px center;
+  cursor: pointer;
+}
+
+/* 뷰 전환 버튼 */
+.view-toggles {
+  display: flex;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  overflow: hidden;
+}
+.view-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px; height: 34px;
+  color: var(--text-muted);
+  transition: all 0.25s ease;
+}
+.view-btn:not(:last-child) { border-right: 1px solid var(--border); }
+.view-btn:hover { color: var(--text-sub); background: var(--surface-alt); }
+.view-btn.active {
+  color: var(--accent);
+  background: var(--accent-light);
+}
+.view-btn svg { width: 16px; height: 16px; }
+
+/* 활성 필터 태그 */
+.active-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-bottom: 1rem;  /* 16px */
+}
+.filter-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 10px;
+  font-size: 0.75rem;   /* 12px */
+  font-weight: 500;
+  color: var(--accent);
+  background: var(--accent-light);
+  border-radius: 20px;
+}
+.filter-tag-close {
+  font-size: 14px;
+  cursor: pointer;
+  opacity: 0.6;
+  transition: opacity 0.25s ease;
+}
+.filter-tag-close:hover { opacity: 1; }
+
+
+/* ================================================================
+   ★ 상품 그리드 뷰
+   ================================================================ */
+.product-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);  /* 모바일: 2열 */
+  gap: 1rem;                               /* 16px */
+}
+@media (min-width: 576px) {
+  .product-grid {
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  }
+}
+@media (min-width: 1080px) {
+  .product-grid {
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  }
+}
+
+/* ★ 상품 카드 */
+.product-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  overflow: hidden;
+  transition: all 0.25s ease;
+  position: relative;
+}
+.product-card:hover {
+  border-color: #D0CEC7;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+  transform: translateY(-2px);
+}
+
+/* 이미지 */
+.product-img-wrap {
+  position: relative;
+  overflow: hidden;
+}
+.product-img {
+  width: 100%;
+  aspect-ratio: 1 / 1;  /* ★ 정사각형 비율 */
+  object-fit: cover;
+  background: var(--surface-alt);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+  font-size: 0.75rem;    /* 12px */
+  font-family: 'JetBrains Mono', monospace;
+  transition: transform 0.4s ease;
+}
+.product-card:hover .product-img { transform: scale(1.03); }
+
+/* 뱃지: 할인/NEW/BEST */
+.product-badges {
+  position: absolute;
+  top: 8px; left: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  z-index: 2;
+}
+.product-badge {
+  display: inline-block;
+  padding: 2px 7px;
+  font-size: 10px;
+  font-weight: 700;
+  border-radius: 3px;
+  color: #fff;
+  line-height: 1.5;
+}
+.product-badge-sale { background: var(--danger); }
+.product-badge-new  { background: var(--accent); }
+.product-badge-best { background: var(--success); }
+
+/* 찜 버튼 */
+.product-wish {
+  position: absolute;
+  top: 8px; right: 8px;
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  background: rgba(255,255,255,0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  z-index: 2;
+  transition: all 0.25s ease;
+}
+.product-wish:hover { background: #fff; transform: scale(1.1); }
+.product-wish svg { width: 16px; height: 16px; color: var(--text-muted); }
+.product-wish.active svg { color: var(--danger); fill: var(--danger); }
+
+/* 상품 정보 */
+.product-info {
+  padding: 0.5rem;  /* 8px */
+}
+@media (min-width: 768px) {
+  .product-info { padding: 1rem; } /* 16px */
+}
+
+.product-brand {
+  font-size: 0.75rem;  /* 12px */
+  color: var(--text-muted);
+  font-weight: 500;
+  margin-bottom: 2px;
+}
+.product-name {
+  font-size: 0.875rem;  /* 14px */
+  font-weight: 500;
+  color: var(--text);
+  line-height: 1.4;
+  margin-bottom: 0.25rem; /* 4px */
+  display: -webkit-box;
+  -webkit-line-clamp: 2;  /* ★ 2줄 말줄임 */
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* 가격 */
+.product-price-area {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.product-discount {
+  font-size: 0.875rem;  /* 14px */
+  font-weight: 700;
+  color: var(--danger);
+}
+.product-price {
+  font-size: 1.125rem;  /* 18px */
+  font-weight: 700;
+  color: var(--text);
+  font-family: 'JetBrains Mono', monospace;
+  letter-spacing: -0.02em;
+}
+.product-price-original {
+  font-size: 0.75rem;   /* 12px */
+  color: var(--text-muted);
+  text-decoration: line-through;
+}
+
+/* 별점 */
+.product-rating {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 6px;
+  font-size: 0.75rem;   /* 12px */
+  color: var(--text-muted);
+}
+.stars { color: #F5B100; letter-spacing: 1px; }
+
+/* 태그 */
+.product-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  margin-top: 6px;
+}
+.product-tag {
+  padding: 1px 6px;
+  font-size: 10px;
+  font-weight: 500;
+  border: 1px solid var(--border);
+  border-radius: 3px;
+  color: var(--text-muted);
+}
+
+
+/* ================================================================
+   ★ 상품 리스트 뷰
+   ================================================================ */
+.product-grid.list-view {
+  grid-template-columns: 1fr;  /* 1열 */
+}
+.product-grid.list-view .product-card {
+  display: flex;
+  flex-direction: column;
+}
+@media (min-width: 576px) {
+  .product-grid.list-view .product-card {
+    flex-direction: row;  /* 가로 배치 */
+  }
+  .product-grid.list-view .product-img-wrap {
+    width: 180px;
+    flex-shrink: 0;
+  }
+  .product-grid.list-view .product-img {
+    aspect-ratio: 1 / 1;
+    height: 100%;
+  }
+  .product-grid.list-view .product-info {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 1rem 1.5rem; /* 16px 24px */
+  }
+  .product-grid.list-view .product-name {
+    font-size: 1rem;  /* 16px */
+    -webkit-line-clamp: 1;
+  }
+}
+@media (min-width: 768px) {
+  .product-grid.list-view .product-img-wrap { width: 200px; }
+}
+
+/* 품절 오버레이 */
+.product-soldout .product-img-wrap::after {
+  content: '일시품절';
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 0.875rem;  /* 14px */
+  font-weight: 700;
+  z-index: 3;
+}
+.product-soldout {
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+
+/* ================================================================
+   ★ 모바일 바텀시트 오버레이 (필터용)
+   ================================================================ */
+.filter-overlay {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.4);
+  z-index: 200;
+}
+.filter-overlay.open { display: block; }
+@media (min-width: 1080px) {
+  .filter-overlay { display: none !important; }
+}
+</style>
+</head>
+<body>
+
+<!-- 헤더 -->
+<header class="header">
+  <div class="header-inner">
+    <a href="01-main.html" class="logo">RWD Study</a>
+    <button class="menu-toggle" onclick="document.querySelector('.gnb').classList.toggle('open')" aria-label="메뉴">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </button>
+    <nav class="gnb">
+      <a href="01-main.html">메인</a>
+      <a href="02-notice.html">공지사항</a>
+      <a href="03-form.html">폼 요소</a>
+      <a href="04-cards.html">카드 섹션</a>
+      <a href="05-products.html" class="active">상품 리스트</a>
+    </nav>
+  </div>
+</header>
+
+<!-- 페이지 헤더 -->
+<div class="page-header-area">
+  <div class="container">
+    <p class="label mb-sm">PRODUCT LIST</p>
+    <h1 class="page-title">전체 상품</h1>
+    <p class="page-desc" style="margin-bottom:0;">반응형 상품 그리드: 2열→auto-fill, 그리드↔리스트 뷰 전환, 필터 사이드바</p>
+  </div>
+</div>
+
+<!-- ★ 상품 레이아웃 -->
+<div class="product-layout">
+
+  <!-- ★ 필터 사이드바 -->
+  <aside>
+    <!-- 모바일 필터 토글 -->
+    <button class="filter-toggle" onclick="toggleFilter()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+      필터
+    </button>
+
+    <!-- 필터 패널 -->
+    <div class="filter-panel" id="filterPanel">
+      <div class="filter-title">
+        필터
+        <span class="filter-reset">초기화</span>
+      </div>
+
+      <!-- 카테고리 -->
+      <div class="filter-group">
+        <div class="filter-group-title">카테고리</div>
+        <label class="filter-option">
+          <input type="checkbox" checked> 전체 <span class="filter-count">248</span>
+        </label>
+        <label class="filter-option">
+          <input type="checkbox"> 상의 <span class="filter-count">82</span>
+        </label>
+        <label class="filter-option">
+          <input type="checkbox"> 하의 <span class="filter-count">64</span>
+        </label>
+        <label class="filter-option">
+          <input type="checkbox" checked> 아우터 <span class="filter-count">45</span>
+        </label>
+        <label class="filter-option">
+          <input type="checkbox"> 원피스 <span class="filter-count">31</span>
+        </label>
+        <label class="filter-option">
+          <input type="checkbox"> 악세서리 <span class="filter-count">26</span>
+        </label>
+      </div>
+
+      <!-- 가격 -->
+      <div class="filter-group">
+        <div class="filter-group-title">가격</div>
+        <div class="price-range">
+          <input type="text" placeholder="0" value="10,000">
+          <span>~</span>
+          <input type="text" placeholder="∞" value="100,000">
+        </div>
+        <div style="margin-top:8px;">
+          <label class="filter-option"><input type="radio" name="price"> ~3만원</label>
+          <label class="filter-option"><input type="radio" name="price" checked> 3~10만원</label>
+          <label class="filter-option"><input type="radio" name="price"> 10~30만원</label>
+          <label class="filter-option"><input type="radio" name="price"> 30만원~</label>
+        </div>
+      </div>
+
+      <!-- 색상 -->
+      <div class="filter-group">
+        <div class="filter-group-title">색상</div>
+        <div class="color-options">
+          <!-- ui-kit-ignore-start : 상품 색상 값이므로 토큰 검사에서 제외 -->
+          <div class="color-swatch active" style="background:#1C1C1C;" onclick="this.classList.toggle('active')"></div>
+          <div class="color-swatch" style="background:#FFFFFF;border-color:#E5E3DD;" onclick="this.classList.toggle('active')"></div>
+          <div class="color-swatch" style="background:#D93025;" onclick="this.classList.toggle('active')"></div>
+          <div class="color-swatch" style="background:#2856C3;" onclick="this.classList.toggle('active')"></div>
+          <div class="color-swatch" style="background:#188038;" onclick="this.classList.toggle('active')"></div>
+          <div class="color-swatch" style="background:#F5B100;" onclick="this.classList.toggle('active')"></div>
+          <div class="color-swatch" style="background:#E8A0BF;" onclick="this.classList.toggle('active')"></div>
+          <div class="color-swatch" style="background:#9B978F;" onclick="this.classList.toggle('active')"></div>
+          <!-- ui-kit-ignore-end -->
+        </div>
+      </div>
+
+      <!-- 브랜드 -->
+      <div class="filter-group">
+        <div class="filter-group-title">브랜드</div>
+        <label class="filter-option"><input type="checkbox"> Studio A <span class="filter-count">34</span></label>
+        <label class="filter-option"><input type="checkbox"> MONO <span class="filter-count">28</span></label>
+        <label class="filter-option"><input type="checkbox"> 마르셀 <span class="filter-count">21</span></label>
+        <label class="filter-option"><input type="checkbox"> LAYER <span class="filter-count">19</span></label>
+      </div>
+
+      <!-- 기타 -->
+      <div class="filter-group">
+        <div class="filter-group-title">기타</div>
+        <label class="filter-option"><input type="checkbox"> 무료배송</label>
+        <label class="filter-option"><input type="checkbox"> 할인 중</label>
+        <label class="filter-option"><input type="checkbox"> 리뷰 100+</label>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ★ 상품 영역 -->
+  <div class="product-area">
+
+    <!-- 활성 필터 -->
+    <div class="active-filters">
+      <span class="filter-tag">아우터 <span class="filter-tag-close">×</span></span>
+      <span class="filter-tag">블랙 <span class="filter-tag-close">×</span></span>
+      <span class="filter-tag">3~10만원 <span class="filter-tag-close">×</span></span>
+    </div>
+
+    <!-- 툴바 -->
+    <div class="product-toolbar">
+      <div class="product-count">총 <strong>45</strong>개 상품</div>
+      <div class="toolbar-right">
+        <select class="sort-select">
+          <option>인기순</option>
+          <option>최신순</option>
+          <option>가격 낮은순</option>
+          <option>가격 높은순</option>
+          <option>리뷰 많은순</option>
+        </select>
+
+        <!-- ★ 그리드/리스트 뷰 전환 -->
+        <div class="view-toggles">
+          <button class="view-btn active" onclick="setView('grid')" title="그리드 뷰">
+            <svg viewBox="0 0 16 16" fill="currentColor"><rect x="1" y="1" width="6" height="6" rx="1"/><rect x="9" y="1" width="6" height="6" rx="1"/><rect x="1" y="9" width="6" height="6" rx="1"/><rect x="9" y="9" width="6" height="6" rx="1"/></svg>
+          </button>
+          <button class="view-btn" onclick="setView('list')" title="리스트 뷰">
+            <svg viewBox="0 0 16 16" fill="currentColor"><rect x="1" y="1" width="14" height="3" rx="1"/><rect x="1" y="6.5" width="14" height="3" rx="1"/><rect x="1" y="12" width="14" height="3" rx="1"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ★ 상품 그리드 -->
+    <div class="product-grid" id="productGrid">
+
+      <!-- 상품 1 -->
+      <div class="product-card fade-in">
+        <div class="product-img-wrap">
+          <div class="product-img">1:1</div>
+          <div class="product-badges">
+            <span class="product-badge product-badge-sale">20%</span>
+            <span class="product-badge product-badge-best">BEST</span>
+          </div>
+          <div class="product-wish" onclick="this.classList.toggle('active')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+          </div>
+        </div>
+        <div class="product-info">
+          <div class="product-brand">Studio A</div>
+          <div class="product-name">오버사이즈 울 블렌드 코트 — 차콜 블랙</div>
+          <div class="product-price-area">
+            <span class="product-discount">20%</span>
+            <span class="product-price">79,200원</span>
+            <span class="product-price-original">99,000원</span>
+          </div>
+          <div class="product-rating">
+            <span class="stars">★★★★★</span>
+            <span>4.8</span>
+            <span>(324)</span>
+          </div>
+          <div class="product-tags">
+            <span class="product-tag">무료배송</span>
+            <span class="product-tag">당일출고</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 상품 2 -->
+      <div class="product-card fade-in delay-1">
+        <div class="product-img-wrap">
+          <div class="product-img">1:1</div>
+          <div class="product-badges">
+            <span class="product-badge product-badge-new">NEW</span>
+          </div>
+          <div class="product-wish" onclick="this.classList.toggle('active')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+          </div>
+        </div>
+        <div class="product-info">
+          <div class="product-brand">MONO</div>
+          <div class="product-name">미니멀 크롭 트렌치코트</div>
+          <div class="product-price-area">
+            <span class="product-price">128,000원</span>
+          </div>
+          <div class="product-rating">
+            <span class="stars">★★★★☆</span>
+            <span>4.5</span>
+            <span>(87)</span>
+          </div>
+          <div class="product-tags">
+            <span class="product-tag">무료배송</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 상품 3 -->
+      <div class="product-card fade-in delay-2">
+        <div class="product-img-wrap">
+          <div class="product-img">1:1</div>
+          <div class="product-badges">
+            <span class="product-badge product-badge-sale">35%</span>
+          </div>
+          <div class="product-wish active" onclick="this.classList.toggle('active')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+          </div>
+        </div>
+        <div class="product-info">
+          <div class="product-brand">마르셀</div>
+          <div class="product-name">캐시미어 터틀넥 니트 — 아이보리</div>
+          <div class="product-price-area">
+            <span class="product-discount">35%</span>
+            <span class="product-price">58,500원</span>
+            <span class="product-price-original">90,000원</span>
+          </div>
+          <div class="product-rating">
+            <span class="stars">★★★★★</span>
+            <span>4.9</span>
+            <span>(512)</span>
+          </div>
+          <div class="product-tags">
+            <span class="product-tag">무료배송</span>
+            <span class="product-tag">리뷰 500+</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 상품 4 -->
+      <div class="product-card fade-in delay-3">
+        <div class="product-img-wrap">
+          <div class="product-img">1:1</div>
+          <div class="product-wish" onclick="this.classList.toggle('active')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+          </div>
+        </div>
+        <div class="product-info">
+          <div class="product-brand">LAYER</div>
+          <div class="product-name">세미 와이드 슬랙스 — 네이비</div>
+          <div class="product-price-area">
+            <span class="product-price">45,000원</span>
+          </div>
+          <div class="product-rating">
+            <span class="stars">★★★★☆</span>
+            <span>4.3</span>
+            <span>(156)</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 상품 5 -->
+      <div class="product-card fade-in delay-4">
+        <div class="product-img-wrap">
+          <div class="product-img">1:1</div>
+          <div class="product-badges">
+            <span class="product-badge product-badge-sale">15%</span>
+          </div>
+          <div class="product-wish" onclick="this.classList.toggle('active')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+          </div>
+        </div>
+        <div class="product-info">
+          <div class="product-brand">Studio A</div>
+          <div class="product-name">데일리 코튼 셔츠 — 스트라이프</div>
+          <div class="product-price-area">
+            <span class="product-discount">15%</span>
+            <span class="product-price">42,500원</span>
+            <span class="product-price-original">50,000원</span>
+          </div>
+          <div class="product-rating">
+            <span class="stars">★★★★☆</span>
+            <span>4.4</span>
+            <span>(203)</span>
+          </div>
+          <div class="product-tags">
+            <span class="product-tag">당일출고</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 상품 6: 품절 -->
+      <div class="product-card product-soldout fade-in delay-5">
+        <div class="product-img-wrap">
+          <div class="product-img">1:1</div>
+        </div>
+        <div class="product-info">
+          <div class="product-brand">MONO</div>
+          <div class="product-name">린넨 블렌드 재킷 — 베이지</div>
+          <div class="product-price-area">
+            <span class="product-price">89,000원</span>
+          </div>
+          <div class="product-rating">
+            <span class="stars">★★★★★</span>
+            <span>4.7</span>
+            <span>(98)</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 상품 7 -->
+      <div class="product-card fade-in">
+        <div class="product-img-wrap">
+          <div class="product-img">1:1</div>
+          <div class="product-badges">
+            <span class="product-badge product-badge-best">BEST</span>
+          </div>
+          <div class="product-wish" onclick="this.classList.toggle('active')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+          </div>
+        </div>
+        <div class="product-info">
+          <div class="product-brand">마르셀</div>
+          <div class="product-name">플리츠 롱스커트 — 올리브</div>
+          <div class="product-price-area">
+            <span class="product-price">62,000원</span>
+          </div>
+          <div class="product-rating">
+            <span class="stars">★★★★★</span>
+            <span>4.8</span>
+            <span>(276)</span>
+          </div>
+          <div class="product-tags">
+            <span class="product-tag">무료배송</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- 상품 8 -->
+      <div class="product-card fade-in delay-1">
+        <div class="product-img-wrap">
+          <div class="product-img">1:1</div>
+          <div class="product-badges">
+            <span class="product-badge product-badge-sale">10%</span>
+            <span class="product-badge product-badge-new">NEW</span>
+          </div>
+          <div class="product-wish" onclick="this.classList.toggle('active')">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+          </div>
+        </div>
+        <div class="product-info">
+          <div class="product-brand">LAYER</div>
+          <div class="product-name">오버핏 후드 집업 — 차콜</div>
+          <div class="product-price-area">
+            <span class="product-discount">10%</span>
+            <span class="product-price">53,100원</span>
+            <span class="product-price-original">59,000원</span>
+          </div>
+          <div class="product-rating">
+            <span class="stars">★★★★☆</span>
+            <span>4.2</span>
+            <span>(64)</span>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /product-grid -->
+
+    <!-- 페이지네이션 -->
+    <div class="pagination">
+      <a href="#">‹</a>
+      <span class="active">1</span>
+      <a href="#">2</a>
+      <a href="#">3</a>
+      <a href="#">4</a>
+      <a href="#">5</a>
+      <a href="#">›</a>
+    </div>
+
+  </div><!-- /product-area -->
+</div><!-- /product-layout -->
+
+<!-- 오버레이 -->
+<div class="filter-overlay" id="filterOverlay" onclick="toggleFilter()"></div>
+
+<!-- 푸터 -->
+<footer class="footer">
+  <div class="container">
+    <p class="footer-copy">© 2026 RWD Study. 반응형 웹 학습 목적.</p>
+  </div>
+</footer>
+
+<script>
+/* ★ 그리드 / 리스트 뷰 전환 */
+function setView(mode) {
+  const grid = document.getElementById('productGrid');
+  const btns = document.querySelectorAll('.view-btn');
+
+  if (mode === 'list') {
+    grid.classList.add('list-view');
+    btns[0].classList.remove('active');
+    btns[1].classList.add('active');
+  } else {
+    grid.classList.remove('list-view');
+    btns[0].classList.add('active');
+    btns[1].classList.remove('active');
+  }
+}
+
+/* ★ 모바일 필터 토글 */
+function toggleFilter() {
+  const panel = document.getElementById('filterPanel');
+  const overlay = document.getElementById('filterOverlay');
+  panel.classList.toggle('open');
+  overlay.classList.toggle('open');
+}
+</script>
+
+</body>
+</html>

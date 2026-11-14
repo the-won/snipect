@@ -1,0 +1,134 @@
+@charset "UTF-8";
+/* ================================================================
+   guide.css — 컴포넌트 가이드 문서 전용 스타일
+   (서비스 페이지에는 로드하지 않는다)
+   ================================================================ */
+
+.guide-nav {
+  display: flex;
+  gap: var(--space-1);
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.guide-nav a {
+  padding: var(--space-1) var(--space-3);
+  font-size: var(--fs-sm);
+  font-weight: var(--fw-medium);
+  color: var(--text-muted);
+  border-radius: var(--radius-sm);
+  white-space: nowrap;
+  transition: var(--transition);
+}
+.guide-nav a:hover { color: var(--text-sub); background: var(--surface-alt); }
+.guide-nav a.active { color: var(--accent); background: var(--accent-light); font-weight: var(--fw-semibold); }
+
+.guide-main {
+  max-width: 960px;
+  margin: 0 auto;
+  padding: var(--space-6) var(--space-4) var(--space-8);
+}
+
+/* 섹션 */
+.guide-section { margin-bottom: var(--space-7); }
+.guide-section > h2 {
+  font-size: var(--fs-xl);
+  font-weight: var(--fw-bold);
+  margin-bottom: var(--space-1);
+}
+.guide-section > .guide-desc {
+  font-size: var(--fs-sm);
+  color: var(--text-sub);
+  margin-bottom: var(--space-4);
+}
+
+/* 미리보기 + 코드 */
+.guide-demo {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--space-3);
+  padding: var(--space-5);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+}
+.guide-demo.is-block { display: block; }
+.guide-demo.is-dark { background: var(--dark); }
+
+/* 데모 전용 보정 — 인라인 style 로 쓰면 코드 블록과 스니펫에 섞이므로 여기서 처리 */
+.guide-demo .pagination { margin-top: 0; }
+.guide-demo > .card { max-width: 320px; }
+
+.guide-code {
+  margin: 0;
+  padding: var(--space-4);
+  max-height: 320px;
+  overflow: auto;
+  background: #1E2230;
+  color: #D6DEEB;
+  border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  line-height: var(--lh-loose);
+  tab-size: 2;
+  white-space: pre;
+}
+
+/* 클래스 설명표 */
+.guide-table-wrap {
+  overflow-x: auto;
+  margin-top: var(--space-4);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+}
+.guide-table { min-width: 520px; }
+.guide-table th,
+.guide-table td {
+  padding: var(--space-3) var(--space-4);
+  text-align: left;
+  font-size: var(--fs-sm);
+  border-bottom: 1px solid var(--border);
+  vertical-align: top;
+}
+.guide-table th {
+  font-size: var(--fs-xs);
+  color: var(--text-muted);
+  background: var(--surface-alt);
+}
+.guide-table tr:last-child td { border-bottom: none; }
+.guide-table code {
+  font-family: var(--font-mono);
+  font-size: var(--fs-xs);
+  padding: 2px 6px;
+  color: var(--accent);
+  background: var(--accent-light);
+  border-radius: var(--radius-sm);
+  white-space: nowrap;
+}
+
+/* 토큰 미리보기 */
+.token-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+  gap: var(--space-3);
+}
+.token-item {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  font-size: var(--fs-xs);
+}
+.token-swatch { height: 48px; border-bottom: 1px solid var(--border); }
+.token-item b { display: block; padding: var(--space-2) var(--space-2) 0; font-family: var(--font-mono); }
+.token-item span { display: block; padding: 0 var(--space-2) var(--space-2); color: var(--text-muted); font-family: var(--font-mono); }
+
+.guide-note {
+  margin-top: var(--space-3);
+  padding: var(--space-3) var(--space-4);
+  font-size: var(--fs-sm);
+  color: var(--text-sub);
+  background: var(--warning-light);
+  border-radius: var(--radius-md);
+}

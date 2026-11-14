@@ -1,0 +1,374 @@
+// 자동 생성 파일입니다. 직접 고치지 말고 guide/*.html 을 수정한 뒤 npm run gen:vscode 를 실행하세요.
+{
+  "btn-primary": {
+    "scope": "html",
+    "prefix": "btn-primary",
+    "body": [
+      "<button type=\"button\" class=\"btn btn-primary\">${1:Primary}</button>"
+    ],
+    "description": "버튼 Primary (주요 행동, 화면당 1개 권장) — guide/btn.html"
+  },
+  "btn-outline": {
+    "scope": "html",
+    "prefix": "btn-outline",
+    "body": [
+      "<button type=\"button\" class=\"btn btn-outline\">${1:Outline}</button>"
+    ],
+    "description": "버튼 Outline (보조 행동) — guide/btn.html"
+  },
+  "btn-danger": {
+    "scope": "html",
+    "prefix": "btn-danger",
+    "body": [
+      "<button type=\"button\" class=\"btn btn-danger\">${1:Danger}</button>"
+    ],
+    "description": "버튼 Danger (삭제·취소 등 위험 동작) — guide/btn.html"
+  },
+  "btn-sm": {
+    "scope": "html",
+    "prefix": "btn-sm",
+    "body": [
+      "<button type=\"button\" class=\"btn btn-primary btn-sm\">${1:Small}</button>"
+    ],
+    "description": "작은 버튼 — guide/btn.html"
+  },
+  "btn-lg": {
+    "scope": "html",
+    "prefix": "btn-lg",
+    "body": [
+      "<button type=\"button\" class=\"btn btn-primary btn-lg\">${1:Large}</button>"
+    ],
+    "description": "큰 버튼 — guide/btn.html"
+  },
+  "btn-disabled": {
+    "scope": "html",
+    "prefix": "btn-disabled",
+    "body": [
+      "<button type=\"button\" class=\"btn btn-primary\" disabled>${1:Disabled}</button>"
+    ],
+    "description": "비활성 버튼 (disabled 속성) — guide/btn.html"
+  },
+  "btn-link-disabled": {
+    "scope": "html",
+    "prefix": "btn-link-disabled",
+    "body": [
+      "<a href=\"#\" class=\"btn btn-primary disabled\">${1:Link Disabled}</a>"
+    ],
+    "description": "비활성 링크 버튼 (.disabled 클래스) — guide/btn.html"
+  },
+  "btn-block": {
+    "scope": "html",
+    "prefix": "btn-block",
+    "body": [
+      "<button type=\"button\" class=\"btn btn-primary btn-lg btn-block\">${1:가입하기}</button>"
+    ],
+    "description": "전체 너비 버튼 (모바일 하단 CTA) — guide/btn.html"
+  },
+  "btn-icon": {
+    "scope": "html",
+    "prefix": "btn-icon",
+    "body": [
+      "<button type=\"button\" class=\"btn btn-outline\">",
+      "  <svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\"><polygon points=\"22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3\"/></svg>",
+      "  ${1:필터}",
+      "</button>"
+    ],
+    "description": "아이콘 + 텍스트 버튼 — guide/btn.html"
+  },
+  "btn-link": {
+    "scope": "html",
+    "prefix": "btn-link",
+    "body": [
+      "<a href=\"#\" class=\"btn btn-primary\">${1:다음: 공지사항 →}</a>"
+    ],
+    "description": "링크(a) 버튼 — guide/btn.html"
+  },
+  "btn-group": {
+    "scope": "html",
+    "prefix": "btn-group",
+    "body": [
+      "<div class=\"btn-group\">",
+      "  <button type=\"button\" class=\"btn btn-outline btn-lg\">${1:취소}</button>",
+      "  <button type=\"button\" class=\"btn btn-primary btn-lg\">${2:확인}</button>",
+      "</div>"
+    ],
+    "description": "버튼 그룹 (취소 / 확인) — guide/btn.html"
+  },
+  "input-group": {
+    "scope": "html",
+    "prefix": "input-group",
+    "body": [
+      "<div class=\"input-group\">",
+      "  <input type=\"text\" class=\"form-input\" placeholder=\"${1:영문, 숫자 6~20자}\">",
+      "  <button type=\"button\" class=\"btn btn-outline\">${2:중복확인}</button>",
+      "</div>"
+    ],
+    "description": "입력 + 버튼 한 줄 — guide/btn.html"
+  },
+  "badge-primary": {
+    "scope": "html",
+    "prefix": "badge-primary",
+    "body": [
+      "<span class=\"badge badge-primary\">${1:공지}</span>"
+    ],
+    "description": "배지 Primary — guide/components.html"
+  },
+  "badge-success": {
+    "scope": "html",
+    "prefix": "badge-success",
+    "body": [
+      "<span class=\"badge badge-success\">${1:업데이트}</span>"
+    ],
+    "description": "배지 Success — guide/components.html"
+  },
+  "badge-danger": {
+    "scope": "html",
+    "prefix": "badge-danger",
+    "body": [
+      "<span class=\"badge badge-danger\">${1:긴급}</span>"
+    ],
+    "description": "배지 Danger — guide/components.html"
+  },
+  "badge-warning": {
+    "scope": "html",
+    "prefix": "badge-warning",
+    "body": [
+      "<span class=\"badge badge-warning\">${1:점검}</span>"
+    ],
+    "description": "배지 Warning — guide/components.html"
+  },
+  "tab-filters": {
+    "scope": "html",
+    "prefix": "tab-filters",
+    "body": [
+      "<div class=\"tab-filters\">",
+      "  <button type=\"button\" class=\"tab-filter active\">${1:전체}</button>",
+      "  <button type=\"button\" class=\"tab-filter\">${2:공지}</button>",
+      "  <button type=\"button\" class=\"tab-filter\">${3:점검}</button>",
+      "  <button type=\"button\" class=\"tab-filter\">${4:이벤트}</button>",
+      "</div>"
+    ],
+    "description": "탭 필터 (칩) — guide/components.html"
+  },
+  "pagination": {
+    "scope": "html",
+    "prefix": "pagination",
+    "body": [
+      "<div class=\"pagination\">",
+      "  <a href=\"#\">‹</a>",
+      "  <span class=\"active\">${1:1}</span>",
+      "  <a href=\"#\">${2:2}</a>",
+      "  <a href=\"#\">${3:3}</a>",
+      "  <a href=\"#\">›</a>",
+      "</div>"
+    ],
+    "description": "페이지네이션 — guide/components.html"
+  },
+  "card": {
+    "scope": "html",
+    "prefix": "card",
+    "body": [
+      "<div class=\"card\">",
+      "  <div class=\"card-img\"></div>",
+      "  <div class=\"card-body\">",
+      "    <h3>${1:카드 제목}</h3>",
+      "    <p class=\"text-muted\">${2:카드 설명 문구가 들어갑니다.}</p>",
+      "  </div>",
+      "</div>"
+    ],
+    "description": "카드 (이미지 + 본문) — guide/components.html"
+  },
+  "tbl": {
+    "scope": "html",
+    "prefix": "tbl",
+    "body": [
+      "<div class=\"table-wrap\">",
+      "  <table class=\"tbl\">",
+      "    <thead><tr><th>${1:번호}</th><th>${2:제목}</th><th>${3:날짜}</th></tr></thead>",
+      "    <tbody>",
+      "      <tr><td>${4:2}</td><td>${5:서비스 개편 안내}</td><td>${6:2026.05.15}</td></tr>",
+      "      <tr><td>${7:1}</td><td>${8:정기 점검 안내}</td><td>${9:2026.05.13}</td></tr>",
+      "    </tbody>",
+      "  </table>",
+      "</div>"
+    ],
+    "description": "반응형 테이블 — guide/components.html"
+  },
+  "form-input": {
+    "scope": "html",
+    "prefix": "form-input",
+    "body": [
+      "<div class=\"form-group\">",
+      "  <label class=\"form-label\" for=\"${1:g-name}\">${2:이름 }<span class=\"req\">*</span></label>",
+      "  <input type=\"text\" id=\"${1:g-name}\" class=\"form-input\" placeholder=\"${3:이름을 입력하세요}\">",
+      "</div>"
+    ],
+    "description": "텍스트 입력 (라벨 + 필수 표시) — guide/form.html"
+  },
+  "form-input-hint": {
+    "scope": "html",
+    "prefix": "form-input-hint",
+    "body": [
+      "<div class=\"form-group\">",
+      "  <label class=\"form-label\" for=\"${1:g-pw}\">${2:비밀번호}</label>",
+      "  <input type=\"password\" id=\"${1:g-pw}\" class=\"form-input\" placeholder=\"${3:영문+숫자+특수문자 8자 이상}\">",
+      "  <p class=\"form-hint\">${4:영문, 숫자, 특수문자 조합 8자 이상}</p>",
+      "</div>"
+    ],
+    "description": "텍스트 입력 + 힌트 문구 — guide/form.html"
+  },
+  "form-input-error": {
+    "scope": "html",
+    "prefix": "form-input-error",
+    "body": [
+      "<div class=\"form-group\">",
+      "  <label class=\"form-label\">${1:비밀번호 확인}</label>",
+      "  <input type=\"password\" class=\"form-input is-error\" value=\"1234\">",
+      "  <p class=\"form-hint error\">${2:✕ 비밀번호가 일치하지 않습니다.}</p>",
+      "</div>"
+    ],
+    "description": "입력 에러 상태 — guide/form.html"
+  },
+  "form-input-success": {
+    "scope": "html",
+    "prefix": "form-input-success",
+    "body": [
+      "<div class=\"form-group\">",
+      "  <label class=\"form-label\">${1:아이디}</label>",
+      "  <input type=\"text\" class=\"form-input is-success\" value=\"publisher01\">",
+      "  <p class=\"form-hint success\">${2:✓ 사용 가능한 아이디입니다.}</p>",
+      "</div>"
+    ],
+    "description": "입력 성공 상태 — guide/form.html"
+  },
+  "form-input-disabled": {
+    "scope": "html",
+    "prefix": "form-input-disabled",
+    "body": [
+      "<div class=\"form-group\">",
+      "  <label class=\"form-label\">${1:우편번호}</label>",
+      "  <input type=\"text\" class=\"form-input\" placeholder=\"${2:우편번호}\" disabled>",
+      "</div>"
+    ],
+    "description": "입력 비활성 상태 — guide/form.html"
+  },
+  "form-select": {
+    "scope": "html",
+    "prefix": "form-select",
+    "body": [
+      "<div class=\"form-group\">",
+      "  <label class=\"form-label\">${1:이메일 도메인}</label>",
+      "  <select class=\"form-input\">",
+      "    <option>${2:직접입력}</option>",
+      "    <option>${3:gmail.com}</option>",
+      "    <option>${4:naver.com}</option>",
+      "  </select>",
+      "</div>"
+    ],
+    "description": "셀렉트 — guide/form.html"
+  },
+  "form-select-sm": {
+    "scope": "html",
+    "prefix": "form-select-sm",
+    "body": [
+      "<div class=\"form-group\">",
+      "  <label class=\"form-label\">${1:정렬 (small)}</label>",
+      "  <select class=\"form-input form-input-sm\">",
+      "    <option>${2:최신순}</option>",
+      "    <option>${3:조회순}</option>",
+      "  </select>",
+      "</div>"
+    ],
+    "description": "작은 셀렉트 (정렬·필터) — guide/form.html"
+  },
+  "form-textarea": {
+    "scope": "html",
+    "prefix": "form-textarea",
+    "body": [
+      "<div class=\"form-group\">",
+      "  <label class=\"form-label\">${1:자기소개}</label>",
+      "  <textarea class=\"form-input\" placeholder=\"${2:간단한 자기소개를 입력하세요 (선택)}\"></textarea>",
+      "  <p class=\"form-hint\">${3:0 / 200자}</p>",
+      "</div>"
+    ],
+    "description": "텍스트 영역 + 글자 수 힌트 — guide/form.html"
+  },
+  "form-radio": {
+    "scope": "html",
+    "prefix": "form-radio",
+    "body": [
+      "<div class=\"form-group\">",
+      "  <label class=\"form-label\">${1:성별}</label>",
+      "  <div class=\"form-check-group\">",
+      "    <label class=\"form-check\"><input type=\"radio\" name=\"g-gender\" checked>${2: 남성}</label>",
+      "    <label class=\"form-check\"><input type=\"radio\" name=\"g-gender\">${3: 여성}</label>",
+      "    <label class=\"form-check\"><input type=\"radio\" name=\"g-gender\">${4: 선택 안함}</label>",
+      "  </div>",
+      "</div>"
+    ],
+    "description": "라디오 그룹 (가로 나열) — guide/form.html"
+  },
+  "form-check": {
+    "scope": "html",
+    "prefix": "form-check",
+    "body": [
+      "<label class=\"form-check\"><input type=\"checkbox\" checked>${1: [필수] 이용약관 동의}</label>"
+    ],
+    "description": "체크박스 — guide/form.html"
+  },
+  "toggle": {
+    "scope": "html",
+    "prefix": "toggle",
+    "body": [
+      "<div class=\"toggle-wrap\">",
+      "  <div class=\"toggle-label\">",
+      "    ${1:이메일 알림}",
+      "    <small>${2:서비스 업데이트, 혜택 정보를 이메일로 받습니다}</small>",
+      "  </div>",
+      "  <div class=\"toggle on\" onclick=\"this.classList.toggle('on')\"></div>",
+      "</div>"
+    ],
+    "description": "토글 스위치 (설명 + 스위치) — guide/form.html"
+  },
+  "file-upload": {
+    "scope": "html",
+    "prefix": "file-upload",
+    "body": [
+      "<div class=\"file-upload\">",
+      "  <div class=\"file-upload-icon\">${1:📁}</div>",
+      "  <div class=\"file-upload-text\">${2:파일을 드래그하거나 클릭하세요}</div>",
+      "  <div class=\"file-upload-sub\">${3:JPG, PNG / 최대 5MB}</div>",
+      "</div>"
+    ],
+    "description": "파일 업로드 영역 — guide/form.html"
+  },
+  "form-row": {
+    "scope": "html",
+    "prefix": "form-row",
+    "body": [
+      "<div class=\"form-row\">",
+      "  <div class=\"form-group\">",
+      "    <label class=\"form-label\">${1:비밀번호}</label>",
+      "    <input type=\"password\" class=\"form-input\">",
+      "  </div>",
+      "  <div class=\"form-group\">",
+      "    <label class=\"form-label\">${2:비밀번호 확인}</label>",
+      "    <input type=\"password\" class=\"form-input\">",
+      "  </div>",
+      "</div>"
+    ],
+    "description": "폼 2열 그리드 (768px 이상) — guide/form.html"
+  },
+  "form-row-3": {
+    "scope": "html",
+    "prefix": "form-row-3",
+    "body": [
+      "<div class=\"form-row-3\">",
+      "  <input type=\"text\" class=\"form-input\" placeholder=\"${1:YYYY}\">",
+      "  <select class=\"form-input\"><option>${2:월}</option><option>${3:01}</option></select>",
+      "  <input type=\"text\" class=\"form-input\" placeholder=\"${4:DD}\">",
+      "</div>"
+    ],
+    "description": "폼 3열 그리드 (576px 이상) — guide/form.html"
+  }
+}

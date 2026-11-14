@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>버튼 — 컴포넌트 가이드</title>
+<link rel="stylesheet" href="../resources/css/token.css">
+<link rel="stylesheet" href="../resources/css/common.css">
+<link rel="stylesheet" href="../resources/css/guide.css">
+</head>
+<body>
+
+<header class="header">
+  <div class="header-inner">
+    <a href="index.html" class="logo">UI Guide</a>
+    <nav class="guide-nav">
+      <a href="token.html">토큰</a>
+      <a href="btn.html" class="active">버튼</a>
+      <a href="form.html">폼 요소</a>
+      <a href="components.html">기타</a>
+    </nav>
+  </div>
+</header>
+
+<main class="guide-main">
+  <p class="label mb-sm">COMPONENT</p>
+  <h1 class="page-title" style="font-size:2rem;">Button</h1>
+  <p class="page-desc">기본 클래스 <code>.btn</code> 에 변형(색상)·크기·너비 클래스를 조합해서 사용합니다.<br>
+    <code>&lt;a&gt;</code>, <code>&lt;button&gt;</code> 모두 동일하게 적용됩니다.</p>
+
+  <section class="guide-section">
+    <h2>1. 변형 (Variant)</h2>
+    <p class="guide-desc">용도에 따라 색상을 선택합니다. 화면당 주요 행동(Primary)은 1개를 권장합니다.</p>
+    <div class="guide-demo">
+      <!-- @snippet btn-primary | 버튼 Primary (주요 행동, 화면당 1개 권장) -->
+      <button type="button" class="btn btn-primary">Primary</button>
+      <!-- @end -->
+      <!-- @snippet btn-outline | 버튼 Outline (보조 행동) -->
+      <button type="button" class="btn btn-outline">Outline</button>
+      <!-- @end -->
+      <!-- @snippet btn-danger | 버튼 Danger (삭제·취소 등 위험 동작) -->
+      <button type="button" class="btn btn-danger">Danger</button>
+      <!-- @end -->
+    </div>
+  </section>
+
+  <section class="guide-section">
+    <h2>2. 크기 (Size)</h2>
+    <p class="guide-desc">기본(생략) / <code>.btn-sm</code> / <code>.btn-lg</code></p>
+    <div class="guide-demo">
+      <!-- @snippet btn-sm | 작은 버튼 -->
+      <button type="button" class="btn btn-primary btn-sm">Small</button>
+      <!-- @end -->
+      <button type="button" class="btn btn-primary">Default</button>
+      <!-- @snippet btn-lg | 큰 버튼 -->
+      <button type="button" class="btn btn-primary btn-lg">Large</button>
+      <!-- @end -->
+    </div>
+  </section>
+
+  <section class="guide-section">
+    <h2>3. 상태 (State)</h2>
+    <p class="guide-desc">hover / focus 는 자동 적용됩니다. 비활성은 <code>disabled</code> 속성 또는 <code>.disabled</code> 클래스(링크용)를 사용합니다.</p>
+    <div class="guide-demo">
+      <!-- @snippet btn-disabled | 비활성 버튼 (disabled 속성) -->
+      <button type="button" class="btn btn-primary" disabled>Disabled</button>
+      <!-- @end -->
+      <button type="button" class="btn btn-outline" disabled>Disabled</button>
+      <!-- @snippet btn-link-disabled | 비활성 링크 버튼 (.disabled 클래스) -->
+      <a href="#" class="btn btn-primary disabled">Link Disabled</a>
+      <!-- @end -->
+    </div>
+  </section>
+
+  <section class="guide-section">
+    <h2>4. 전체 너비 (Block)</h2>
+    <p class="guide-desc"><code>.btn-block</code> — 부모 너비를 100% 채웁니다. 모바일 하단 CTA 등에 사용합니다.</p>
+    <div class="guide-demo is-block">
+      <!-- @snippet btn-block | 전체 너비 버튼 (모바일 하단 CTA) -->
+      <button type="button" class="btn btn-primary btn-lg btn-block">가입하기</button>
+      <!-- @end -->
+    </div>
+  </section>
+
+  <section class="guide-section">
+    <h2>5. 아이콘 + 텍스트</h2>
+    <p class="guide-desc"><code>.btn</code> 은 inline-flex + gap 8px 이므로 아이콘과 텍스트를 나란히 두면 됩니다.</p>
+    <div class="guide-demo">
+      <!-- @snippet btn-icon | 아이콘 + 텍스트 버튼 -->
+      <button type="button" class="btn btn-outline">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"/></svg>
+        필터
+      </button>
+      <!-- @end -->
+      <!-- @snippet btn-link | 링크(a) 버튼 -->
+      <a href="#" class="btn btn-primary">다음: 공지사항 →</a>
+      <!-- @end -->
+    </div>
+  </section>
+
+  <section class="guide-section">
+    <h2>6. 버튼 그룹</h2>
+    <p class="guide-desc"><code>.btn-group</code> — 모바일은 세로 쌓기, 576px 이상은 가로 중앙 정렬.</p>
+    <div class="guide-demo is-block">
+      <!-- @snippet btn-group | 버튼 그룹 (취소 / 확인) -->
+      <div class="btn-group">
+        <button type="button" class="btn btn-outline btn-lg">취소</button>
+        <button type="button" class="btn btn-primary btn-lg">확인</button>
+      </div>
+      <!-- @end -->
+    </div>
+  </section>
+
+  <section class="guide-section">
+    <h2>7. 입력 + 버튼 (Input Group)</h2>
+    <p class="guide-desc"><code>.input-group</code> — 입력창은 남는 너비를 채우고 버튼은 고정 폭입니다.</p>
+    <div class="guide-demo is-block">
+      <!-- @snippet input-group | 입력 + 버튼 한 줄 -->
+      <div class="input-group">
+        <input type="text" class="form-input" placeholder="영문, 숫자 6~20자">
+        <button type="button" class="btn btn-outline">중복확인</button>
+      </div>
+      <!-- @end -->
+    </div>
+  </section>
+
+  <section class="guide-section">
+    <h2>클래스 정리</h2>
+    <div class="guide-table-wrap">
+      <table class="guide-table">
+        <thead><tr><th>클래스</th><th>구분</th><th>설명</th></tr></thead>
+        <tbody>
+          <tr><td><code>.btn</code></td><td>필수</td><td>기본 버튼. padding 10×20, 14px, semibold, radius 8px</td></tr>
+          <tr><td><code>.btn-primary</code></td><td>변형</td><td>브랜드 컬러 배경(--accent), 흰 글자</td></tr>
+          <tr><td><code>.btn-outline</code></td><td>변형</td><td>흰 배경 + 테두리, hover 시 브랜드 컬러</td></tr>
+          <tr><td><code>.btn-danger</code></td><td>변형</td><td>삭제·취소 등 위험 동작(--danger)</td></tr>
+          <tr><td><code>.btn-sm</code> / <code>.btn-lg</code></td><td>크기</td><td>12px 작은 버튼 / 16px 큰 버튼</td></tr>
+          <tr><td><code>.btn-block</code></td><td>너비</td><td>width 100%</td></tr>
+          <tr><td><code>.btn-group</code></td><td>레이아웃</td><td>버튼 묶음. 모바일 세로 → 576px+ 가로 중앙</td></tr>
+          <tr><td><code>:disabled</code> / <code>.disabled</code></td><td>상태</td><td>opacity .5, 클릭 불가</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <p class="guide-note">※ 메인 히어로의 <code>.btn-hero*</code> 는 어두운 배경 전용 페이지 스타일이라 공통에서 제외했습니다. 필요하면 공통 변형(<code>.btn-light</code> 등)으로 승격하세요.</p>
+  </section>
+</main>
+
+<script src="../resources/js/guide.js"></script>
+</body>
+</html>
