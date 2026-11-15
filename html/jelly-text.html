@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>말랑말랑 글자</title>
+
+  <!-- 둥근 한글 글꼴. 인터넷이 안 되면 아래 font-family 의 다음 글꼴로 대체된다 -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Jua&display=swap" rel="stylesheet">
+
+  <style>
+    /* ================================================================
+       조절값 — 모양은 여기서 바꾼다
+       ================================================================ */
+    :root {
+      --size: 190px;            /* 글자 최대 크기 (화면이 좁으면 자동으로 줄어든다) */
+      --bg: #FFF4E6;            /* 배경색 */
+      --ink: #5B4636;           /* 안내 문구·입력칸 글자색 */
+
+      /* 글자 색: 앞에서부터 차례로 반복된다. shade 는 글자 아랫면 색 */
+      --c1: #FF8FAB;  --c1-shade: #E0607F;
+      --c2: #FFB547;  --c2-shade: #E08A1E;
+      --c3: #6FD6A8;  --c3-shade: #3FAE7D;
+      --c4: #6EC3FF;  --c4-shade: #3D97DB;
+      --c5: #B79CFF;  --c5-shade: #8A6BE0;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      overflow: hidden;         /* 글자가 떨어지거나 퍼질 때 스크롤바가 생기지 않게 */
+      background: var(--bg);
+      color: var(--ink);
+      font-family: 'Jua', 'Malgun Gothic', '맑은 고딕', 'Apple SD Gothic Neo', sans-serif;
+    }
+
+    .stage {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 40px;
+      width: 100%;
+      padding: 24px 16px;
+    }
+
+    /* ================================================================
+       글자
+       ================================================================ */
+    .jelly {
+      display: flex;
+      justify-content: center;
+      align-items: flex-end;
+      gap: 0.04em;
+      margin: 0;
+      /* --count(글자 수)는 스크립트가 넣는다. 글자가 많으면 화면 너비에 맞게 줄어든다 */
+      font-size: min(var(--size), calc(86vw / var(--count, 4)));
+      font-weight: 700;
+      line-height: 1;
+      cursor: pointer;
+      user-select: none;
+      -webkit-user-select: none;
+      touch-action: none;       /* 터치로 누른 채 움직여도 반응이 끊기지 않게 */
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    .letter {
+      position: relative;
+      display: inline-block;
+      --color: var(--c1);
+      --shade: var(--c1-shade);
+    }
+    .letter:nth-child(5n + 2) { --color: var(--c2); --shade: var(--c2-shade); }
+    .letter:nth-child(5n + 3) { --color: var(--c3); --shade: var(--c3-shade); }
+    .letter:nth-child(5n + 4) { --color: var(--c4); --shade: var(--c4-shade); }
+    .letter:nth-child(5n + 5) { --color: var(--c5); --shade: var(--c5-shade); }
+
+    .letter.is-space { width: 0.35em; }
+    .letter.is-waiting { visibility: hidden; }  /* 아직 떨어지기 전 */
+
+    .glyph {
+      position: relative;
+      display: inline-block;
+      color: var(--color);
+      /* 같은 색 외곽선으로 글자를 통통하게 만든다 */
+      -webkit-text-stroke: 0.035em var(--color);
+      paint-order: stroke fill;
+      /* 아랫면(두께)과 윗면 하이라이트 */
+      text-shadow:
+        0 0.055em 0 var(--shade),
+        -0.02em -0.025em 0 rgba(255, 255, 255, 0.45);
+      /* 바닥에 붙어서 눌리도록 기준점을 아래 가운데에 둔다 */
+      transform-origin: 50% 100%;
+      will-change: transform;
+    }
+
+    /* 바닥 그림자: 눌리면 넓어지고, 뛰면 작고 옅어진다 */
+    .shadow {
+      position: absolute;
+      left: 14%;
+      right: 14%;
+      bottom: -0.05em;
+      height: 0.1em;
+      border-radius: 50%;
+      background: #6B4A2B;
+      opacity: 0.2;
+      filter: blur(0.03em);
+      will-change: transform, opacity;
+    }
+    .letter.is-space .shadow { display: none; }
+
+    /* ================================================================
+       문구 입력
+       ================================================================ */
+    .field {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 18px;
+    }
+
+    .field input {
+      width: min(280px, 60vw);
+      padding: 12px 20px;
+      border: 2px solid rgba(91, 70, 54, 0.2);
+      border-radius: 999px;
+      background: #fff;
+      color: inherit;
+      font: inherit;
+      text-align: center;
+      outline: none;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .field input:focus {
+      border-color: var(--c4);
+      box-shadow: 0 0 0 4px rgba(110, 195, 255, 0.25);
+    }
+
+    .hint {
+      margin: -20px 0 0;
+      font-size: 15px;
+      opacity: 0.6;
+    }
+  </style>
+</head>
+<body>
+
+  <main class="stage">
+    <!-- 글자는 스크립트가 한 글자씩 나눠 넣는다. 화면 낭독기는 aria-label 의 문구를 읽는다 -->
+    <h1 class="jelly" id="jelly" aria-label="말랑말랑"></h1>
+
+    <label class="field">
+      문구
+      <input type="text" id="jelly-input" value="말랑말랑" maxlength="12" autocomplete="off" spellcheck="false">
+    </label>
+    <p class="hint">글자에 마우스를 올리거나 눌러 보세요</p>
+  </main>
+
+  <script>
+    (function () {
+      'use strict';
+
+      /* ================================================================
+         조절값 — 움직임은 여기서 바꾼다
+         ================================================================ */
+      const DEFAULT_TEXT = '말랑말랑';  // 입력칸이 비었을 때 보여 줄 문구
+      const STIFFNESS = 170;      // 탄성: 클수록 빨리 되돌아온다
+      const DAMPING = 8;          // 클수록 출렁임이 빨리 잦아든다 (작을수록 오래 출렁임)
+      const COUPLING = 45;        // 옆 글자로 출렁임이 번지는 세기
+      const REACH = 1.1;          // 마우스 영향 범위 (글자 크기의 배수)
+      const HOVER_AMOUNT = 0.2;   // 마우스를 올렸을 때 눌리는 정도 (0 ~ 0.5)
+      const PRESS_AMOUNT = 0.42;  // 눌렀을 때 눌리는 정도 (0 ~ 0.5)
+      const IDLE_AMOUNT = 0.035;  // 가만히 있을 때 숨 쉬는 세기 (0 이면 끔)
+      const IDLE_SPEED = 2.2;     // 숨 쉬는 빠르기
+      const GRAVITY = 2600;       // 중력 (px/s²)
+      const JUMP_BASE = 350;      // 눌렀다 뗄 때 튀어 오르는 기본 속도 (px/s)
+      const JUMP_GAIN = 1100;     // 많이 눌렸을수록 더 높이 튀는 정도
+      const DROP_GAP = 0.09;      // 처음 떨어질 때 글자 사이 시간 간격 (초)
+
+      // 아래는 보통 건드릴 필요가 없는 값
+      const LAND_SQUASH = 0.0045; // 착지 속도가 눌림으로 바뀌는 비율
+      const RESTITUTION = 0.35;   // 바닥에서 다시 튀는 비율
+      const BOUNCE_MIN = 220;     // 이 속도보다 느리게 닿으면 튀지 않고 멈춘다
+      const MAX_SQUASH = 0.55;    // 눌림 한계
+      const MAX_STRETCH = -0.4;   // 늘어남 한계
+      const STEP = 1 / 120;       // 계산 간격 (초)
+
+      const jelly = document.getElementById('jelly');
+      const input = document.getElementById('jelly-input');
+      const motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+      let letters = [];     // 글자별 상태
+      let pointer = null;   // 마우스(터치) 위치 { x, y }
+      let pressed = -1;     // 누르고 있는 글자 번호
+      let fontSize = 100;
+      let time = 0;
+      let lastFrame = 0;
+      let frameId = 0;
+
+      /* ================================================================
+         글자 만들기
+         ================================================================ */
+      // 한글·이모지가 깨지지 않게 "보이는 글자" 단위로 나눈다
+      function splitChars(text) {
+        if (window.Intl && Intl.Segmenter) {
+          return Array.from(new Intl.Segmenter('ko', { granularity: 'grapheme' }).segment(text), (part) => part.segment);
+        }
+        return Array.from(text);
+      }
+
+      // drop: true 면 위에서 떨어지며 등장, false 면 바뀐 글자만 살짝 튄다
+      function build(text, drop) {
+        const chars = splitChars(text.trim() || DEFAULT_TEXT);
+        const previous = letters;
+        const reduced = motionQuery.matches;
+
+        jelly.textContent = '';
+        jelly.setAttribute('aria-label', chars.join(''));
+        jelly.style.setProperty('--count', Math.max(chars.length, 2));
+        pressed = -1;
+
+        letters = chars.map((char, i) => {
+          const el = document.createElement('span');
+          const shadow = document.createElement('span');
+          const glyph = document.createElement('span');
+          const isSpace = !char.trim();
+
+          el.className = 'letter' + (isSpace ? ' is-space' : '');
+          el.setAttribute('aria-hidden', 'true');
+          shadow.className = 'shadow';
+          glyph.className = 'glyph';
+          glyph.textContent = char;
+          el.appendChild(shadow);
+          el.appendChild(glyph);
+          jelly.appendChild(el);
+
+          // s: 눌림 정도(+ 납작, - 길쭉), h: 바닥에서 떠 있는 높이(px)
+          const state = { el, glyph, shadow, char, s: 0, vs: 0, h: 0, vh: 0, waiting: false, delay: 0, cx: 0, cy: 0 };
+          const old = previous[i];
+
+          if (reduced) return state;
+
+          if (drop) {
+            state.h = window.innerHeight * 0.6 + 200;
+            state.waiting = true;
+            state.delay = i * DROP_GAP;
+            el.classList.add('is-waiting');
+          } else if (old && old.char === char) {
+            // 그대로인 글자는 하던 움직임을 이어 간다
+            state.s = old.s;
+            state.vs = old.vs;
+            state.h = old.h;
+            state.vh = old.vh;
+          } else {
+            // 새로 바뀐 글자는 살짝 튀어 오른다
+            state.s = 0.25;
+            state.vh = 420;
+          }
+          return state;
+        });
+
+        measure();
+        render();
+      }
+
+      // 글자의 화면 위치를 기억해 둔다 (마우스와의 거리 계산용)
+      function measure() {
+        fontSize = parseFloat(getComputedStyle(jelly).fontSize) || 100;
+        letters.forEach((l) => {
+          const rect = l.el.getBoundingClientRect();
+          l.cx = rect.left + rect.width / 2;
+          l.cy = rect.top + rect.height / 2;
+        });
+      }
+
+      /* ================================================================
+         움직임 계산 — 글자마다 스프링 하나(눌림)와 중력(높이)
+         ================================================================ */
+      function step(dt) {
+        const reduced = motionQuery.matches;
+        const reach = REACH * fontSize;
+        const before = letters.map((l) => l.s);  // 이웃 값은 계산 전 상태를 쓴다
+        time += dt;
+
+        letters.forEach((l, i) => {
+          // 떨어질 차례를 기다리는 글자
+          if (l.waiting) {
+            l.delay -= dt;
+            if (l.delay > 0) return;
+            l.waiting = false;
+            l.el.classList.remove('is-waiting');
+          }
+
+          // 1) 이 글자가 향해야 할 눌림 정도
+          let target = 0;
+          if (!reduced) target += IDLE_AMOUNT * Math.sin(time * IDLE_SPEED - i * 0.7);
+          if (pointer) {
+            const distance = Math.hypot(pointer.x - l.cx, (pointer.y - l.cy) * 0.8);
+            const near = Math.max(0, 1 - distance / reach);
+            target += HOVER_AMOUNT * near * near;  // 가까울수록 크게
+          }
+          if (i === pressed) target += PRESS_AMOUNT;
+          if (l.h > 0) target -= Math.min(Math.abs(l.vh) / 2600, 0.2);  // 공중에서는 길쭉하게
+
+          // 2) 스프링: 목표로 끌려가고, 이웃 글자에도 약하게 끌려간다(출렁임이 번짐)
+          const left = i > 0 ? before[i - 1] : l.s;
+          const right = i < letters.length - 1 ? before[i + 1] : l.s;
+          const pull = -STIFFNESS * (l.s - target) - DAMPING * l.vs + COUPLING * ((left + right) / 2 - l.s);
+          l.vs += pull * dt;
+          l.s += l.vs * dt;
+          if (l.s > MAX_SQUASH) { l.s = MAX_SQUASH; l.vs = Math.min(l.vs, 0); }
+          if (l.s < MAX_STRETCH) { l.s = MAX_STRETCH; l.vs = Math.max(l.vs, 0); }
+
+          // 3) 높이: 떠 있으면 중력으로 떨어지고, 바닥에 닿으면 납작해지며 튄다
+          if (l.h > 0 || l.vh > 0) {
+            l.vh -= GRAVITY * dt;
+            l.h += l.vh * dt;
+            if (l.h <= 0) {
+              const impact = -l.vh;
+              l.h = 0;
+              l.vs += impact * LAND_SQUASH;
+              l.vh = impact > BOUNCE_MIN ? impact * RESTITUTION : 0;
+            }
+          }
+        });
+      }
+
+      /* ================================================================
+         화면에 반영 — transform 만 바꾼다
+         ================================================================ */
+      function render() {
+        letters.forEach((l, i) => {
+          // 부피 유지: 세로로 눌린 만큼 옆으로 퍼진다
+          const scaleY = 1 - l.s;
+          const scaleX = 1 / Math.sqrt(scaleY);
+
+          // 양옆 글자의 눌림 차이만큼 기울여 출렁이는 느낌을 더한다
+          const left = i > 0 ? letters[i - 1].s : l.s;
+          const right = i < letters.length - 1 ? letters[i + 1].s : l.s;
+          const tilt = Math.max(-10, Math.min(10, (right - left) * 16));
+
+          l.glyph.style.transform =
+            'translate3d(0,' + (-l.h).toFixed(2) + 'px,0) rotate(' + tilt.toFixed(2) + 'deg) scale(' + scaleX.toFixed(4) + ',' + scaleY.toFixed(4) + ')';
+
+          const lift = Math.min(l.h / (fontSize * 1.2), 1);
+          l.shadow.style.transform = 'scaleX(' + (scaleX * (1 - lift * 0.55)).toFixed(4) + ')';
+          l.shadow.style.opacity = (0.2 * (1 - lift * 0.7)).toFixed(3);
+        });
+      }
+
+      function frame(now) {
+        // 탭을 오래 떠나 있다 돌아와도 한꺼번에 튀지 않게 경과 시간을 제한한다
+        let elapsed = Math.min((now - lastFrame) / 1000, 0.05);
+        lastFrame = now;
+        while (elapsed > 0) {
+          const dt = Math.min(STEP, elapsed);
+          step(dt);
+          elapsed -= dt;
+        }
+        render();
+        frameId = requestAnimationFrame(frame);
+      }
+
+      function start() {
+        cancelAnimationFrame(frameId);
+        lastFrame = performance.now();
+        frameId = requestAnimationFrame(frame);
+      }
+
+      /* ================================================================
+         마우스·터치
+         ================================================================ */
+      function release() {
+        const l = letters[pressed];
+        pressed = -1;
+        if (!l || motionQuery.matches) return;
+        // 많이 눌렸을수록 높이 튀고, 튀는 순간 길쭉하게 늘어난다
+        l.vh = JUMP_BASE + Math.max(l.s, 0) * JUMP_GAIN;
+        l.vs -= 4;
+      }
+
+      window.addEventListener('pointermove', (event) => {
+        pointer = { x: event.clientX, y: event.clientY };
+      });
+
+      jelly.addEventListener('pointerdown', (event) => {
+        const el = event.target.closest('.letter');
+        if (!el) return;
+        pointer = { x: event.clientX, y: event.clientY };
+        pressed = letters.findIndex((l) => l.el === el);
+      });
+
+      ['pointerup', 'pointercancel'].forEach((type) => {
+        window.addEventListener(type, (event) => {
+          if (pressed !== -1) release();
+          // 터치는 손을 떼면 위치가 사라진다
+          if (event.pointerType !== 'mouse') pointer = null;
+        });
+      });
+
+      document.documentElement.addEventListener('pointerleave', () => {
+        pointer = null;
+      });
+
+      /* ================================================================
+         시작
+         ================================================================ */
+      input.addEventListener('input', () => build(input.value, false));
+      window.addEventListener('resize', measure);
+      if (document.fonts && document.fonts.ready) document.fonts.ready.then(measure);
+
+      // 탭이 가려져 있는 동안은 계산을 멈춘다
+      document.addEventListener('visibilitychange', () => {
+        if (document.hidden) cancelAnimationFrame(frameId);
+        else start();
+      });
+
+      build(input.value, true);
+      start();
+    })();
+  </script>
+
+</body>
+</html>

@@ -1,0 +1,1317 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#1B1340">
+  <title>나의 쇼핑 타입 카드</title>
+
+  <!-- 제목용 글꼴. 인터넷이 안 되면 font-family 의 다음 글꼴로 대체된다 -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Gowun+Batang:wght@400;700&display=swap" rel="stylesheet">
+
+  <style>
+    /* ================================================================
+       조절값 — 카드 크기와 색은 여기서 바꾼다
+       ================================================================ */
+    :root {
+      /* 카드 크기: 스크립트는 여기 값으로 그려진 크기를 읽어서 쓴다 */
+      --card-w: min(64vw, 250px);         /* 공개된 카드 너비 */
+      --card-ratio: 1.5;                  /* 카드 세로 ÷ 가로 */
+      --fan-w: min(23.5vw, 13vh, 100px);  /* 부채꼴로 펼친 카드 너비 */
+
+      --bg-top: #3A2470;        /* 배경 위쪽 */
+      --bg-mid: #1B1340;        /* 배경 가운데 */
+      --bg-bottom: #070A1F;     /* 배경 아래쪽 */
+      --gold: #E8C77A;          /* 금색 (테두리, 강조) */
+      --gold-deep: #B8923F;     /* 짙은 금색 (카드 앞면 글자·선) */
+      --back-1: #2B1F66;        /* 카드 뒷면 밝은 쪽 */
+      --back-2: #141036;        /* 카드 뒷면 어두운 쪽 */
+      --cream-1: #FFFBF0;       /* 카드 앞면 밝은 쪽 */
+      --cream-2: #F6E9CC;       /* 카드 앞면 어두운 쪽 */
+      --ink: #2A2140;           /* 카드 앞면 글자 */
+      --text: #F4EEFF;          /* 화면 글자 */
+      --serif: 'Gowun Batang', 'Nanum Myeongjo', 'Batang', '바탕', serif;
+      --sans: -apple-system, BlinkMacSystemFont, 'Apple SD Gothic Neo', 'Malgun Gothic', '맑은 고딕', sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+
+    html,
+    body {
+      height: 100%;
+      margin: 0;
+      overflow: hidden;
+      overscroll-behavior: none;   /* 당겨서 새로고침·화면 튕김 방지 */
+      background: #05060F;
+    }
+
+    body {
+      position: fixed;
+      inset: 0;
+      color: var(--text);
+      font-family: var(--sans);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ================================================================
+       화면 틀 — 휴대폰 화면 전체. PC 에서는 가운데에 휴대폰 너비로 보인다
+       ================================================================ */
+    .app {
+      position: relative;
+      width: 100%;
+      max-width: 430px;
+      height: 100vh;
+      height: 100dvh;
+      margin: 0 auto;
+      padding-bottom: env(safe-area-inset-bottom);  /* 홈 바 여백 (스크립트가 이 값을 읽는다) */
+      overflow: hidden;
+      background: radial-gradient(120% 75% at 50% 0%, var(--bg-top) 0%, var(--bg-mid) 42%, var(--bg-bottom) 100%);
+      touch-action: none;          /* 훑는 동안 화면이 스크롤되지 않게 */
+      user-select: none;
+      -webkit-user-select: none;
+      -webkit-touch-callout: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    /* 별: 층마다 다른 빠르기로 깜빡인다. 위치는 스크립트가 box-shadow 로 찍는다 */
+    .stars i {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 1.5px;
+      height: 1.5px;
+      border-radius: 50%;
+      animation: twinkle 3.1s ease-in-out infinite alternate;
+    }
+    .stars i:nth-child(2) { animation-duration: 4.3s; animation-delay: -1.2s; }
+    .stars i:nth-child(3) { animation-duration: 5.7s; animation-delay: -2.6s; }
+
+    @keyframes twinkle {
+      from { opacity: 0.25; }
+      to { opacity: 1; }
+    }
+
+    /* ================================================================
+       안내 문구
+       ================================================================ */
+    .head {
+      position: absolute;
+      left: 0;
+      right: 0;
+      top: 0;
+      z-index: 2;
+      padding: calc(env(safe-area-inset-top) + 28px) 24px 0;
+      text-align: center;
+      pointer-events: none;
+    }
+
+    .eyebrow {
+      margin: 0 0 10px;
+      color: var(--gold);
+      font-size: 11px;
+      letter-spacing: 0.42em;
+      text-indent: 0.42em;
+    }
+
+    .title {
+      margin: 0;
+      font-family: var(--serif);
+      font-size: clamp(22px, 6.6vw, 28px);
+      font-weight: 700;
+      line-height: 1.3;
+      word-break: keep-all;
+    }
+
+    .sub {
+      min-height: 1.5em;
+      margin: 8px 0 0;
+      font-size: 14px;
+      line-height: 1.5;
+      opacity: 0.68;
+      word-break: keep-all;
+    }
+
+    .title,
+    .sub {
+      transition: opacity 0.18s, transform 0.18s;
+    }
+    .head.is-swap .title,
+    .head.is-swap .sub {
+      opacity: 0;
+      transform: translateY(6px);
+    }
+
+    /* ================================================================
+       카드 놓을 자리 표시 (고르는 동안만 보인다)
+       ================================================================ */
+    .slot {
+      position: absolute;
+      left: 50%;
+      top: var(--deck-y);
+      z-index: 1;
+      /* 크기는 펼친 카드와 같게 둔다 (스크립트가 이 요소의 너비를 읽어 펼친 카드 크기로 쓴다) */
+      width: var(--fan-w);
+      height: calc(var(--fan-w) * var(--card-ratio));
+      margin: calc(var(--fan-w) * var(--card-ratio) * -0.5) 0 0 calc(var(--fan-w) * -0.5);
+      border: 1.2px dashed var(--gold);
+      border-radius: 8px;
+      opacity: 0;
+      transform: scale(calc(1.3 + var(--pull, 0) * 0.15));
+      transition: opacity 0.4s;
+      pointer-events: none;
+    }
+    .app[data-phase="pick"] .slot { opacity: calc(0.28 + var(--pull, 0) * 0.6); }
+
+    /* 위로 올리라는 화살표 */
+    .slot::after {
+      content: '';
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      width: 14px;
+      height: 14px;
+      margin: -3px 0 0 -7px;
+      border-left: 2px solid var(--gold);
+      border-top: 2px solid var(--gold);
+      transform: rotate(45deg);
+      animation: nudge 1.4s ease-in-out infinite;
+    }
+
+    @keyframes nudge {
+      0%, 100% { translate: 0 4px; opacity: 0.5; }
+      50% { translate: 0 -4px; opacity: 1; }
+    }
+
+    /* 반짝이 입자를 그리는 판 (카드 뒤) */
+    .sparks {
+      position: absolute;
+      left: 0;
+      top: 0;
+      z-index: 2;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+    }
+
+    /* ================================================================
+       카드 — 위치·회전·크기는 스크립트가 transform 으로 넣는다
+       ================================================================ */
+    .table {
+      position: absolute;
+      inset: 0;
+      z-index: 3;
+    }
+
+    .card {
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: var(--card-w);
+      height: calc(var(--card-w) * var(--card-ratio));
+      padding: 0;
+      border: 0;
+      background: none;
+      color: inherit;
+      font-family: inherit;
+      /* 카드 안의 크기는 모두 em 으로 잡아 카드 너비에 비례하게 한다 (너비 250px 일 때 16px) */
+      font-size: calc(var(--card-w) * 0.064);
+      perspective: 1000px;
+      opacity: 0;
+      cursor: pointer;
+      will-change: transform, opacity;
+    }
+    .card:focus { outline: none; }
+    .card:focus-visible .back { box-shadow: inset 0 0 0 0.3em #fff, 0 0 2em 0.4em rgba(232, 199, 122, 0.8); }
+
+    .card-inner {
+      position: absolute;
+      inset: 0;
+      display: block;
+      transform-style: preserve-3d;
+      will-change: transform;
+    }
+
+    .face {
+      position: absolute;
+      inset: 0;
+      display: block;
+      border-radius: 1.1em;
+      overflow: hidden;
+      backface-visibility: hidden;
+      -webkit-backface-visibility: hidden;
+    }
+
+    /* ---------- 뒷면 ----------
+       디자인 이미지가 나오면 background 를 url(이미지) center / cover 로, box-shadow 는 그림자만 남기면 된다 */
+    .back {
+      background:
+        /* 가운데 문양 */
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 120 120'%3E%3Ccircle cx='60' cy='60' r='52' fill='none' stroke='%23E8C77A' stroke-width='1.5' stroke-dasharray='2 6' stroke-linecap='round'/%3E%3Ccircle cx='60' cy='60' r='42' fill='none' stroke='%23E8C77A' stroke-width='2.5'/%3E%3Cpath fill='%23E8C77A' transform='translate(60 60) scale(.72) translate(-60 -60)' d='M60 14C63 43 77 57 106 60C77 63 63 77 60 106C57 77 43 63 14 60C43 57 57 43 60 14Z'/%3E%3C/svg%3E") center / 46% auto no-repeat,
+        radial-gradient(circle at 50% 50%, rgba(232, 199, 122, 0.22), transparent 58%),
+        repeating-linear-gradient(45deg, rgba(232, 199, 122, 0.12) 0 0.12em, transparent 0.12em 0.9em),
+        repeating-linear-gradient(-45deg, rgba(232, 199, 122, 0.12) 0 0.12em, transparent 0.12em 0.9em),
+        linear-gradient(160deg, var(--back-1), var(--back-2));
+      box-shadow:
+        inset 0 0 0 0.3em var(--gold),
+        inset 0 0 0 0.75em var(--back-2),
+        inset 0 0 0 0.85em rgba(232, 199, 122, 0.6),
+        0 0.6em 1.6em rgba(0, 0, 0, 0.5);
+    }
+
+    /* ---------- 앞면 ----------
+       뽑힌 카드의 .front 안으로 결과(.result) 하나가 들어온다 */
+    .front {
+      transform: rotateY(180deg);
+      background: linear-gradient(165deg, var(--cream-1), var(--cream-2));
+      box-shadow: 0 0.6em 1.8em rgba(0, 0, 0, 0.5);
+      color: var(--ink);
+    }
+
+    /* 결과 내용: 타입마다 하나씩 마크업에 있다. 강조 색은 타입별로 여기서 정한다 */
+    .result {
+      position: absolute;
+      inset: 0;
+      display: block;
+      --accent: #6C7BFF;
+    }
+    .result[data-type="planner"] { --accent: #6C7BFF; }
+    .result[data-type="impulse"] { --accent: #F0A23B; }
+    .result[data-type="saver"] { --accent: #3FB37F; }
+    .result[data-type="trend"] { --accent: #EF6F8E; }
+    .result[data-type="cart"] { --accent: #3FA7D6; }
+    .result[data-type="gift"] { --accent: #8E7CE0; }
+
+    .front-frame {
+      position: absolute;
+      inset: 0.6em;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 1.1em 1em 1.2em;
+      border: 0.1em solid var(--gold-deep);
+      border-radius: 0.7em;
+      text-align: center;
+    }
+    .front-frame::before {
+      content: '';
+      position: absolute;
+      inset: 0.25em;
+      border: 1px solid rgba(184, 146, 63, 0.45);
+      border-radius: 0.5em;
+    }
+
+    .front-no {
+      color: var(--gold-deep);
+      font-family: var(--serif);
+      font-size: 0.75em;
+      letter-spacing: 0.3em;
+      text-indent: 0.3em;
+    }
+
+    /* 타입 아이콘: 동그란 바탕에 이모지 한 글자. 디자인이 나오면 <img class="front-art"> 로 바꾸면 된다 */
+    .front-art {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 60%;
+      aspect-ratio: 1;
+      margin: 0.14em 0 0.11em;
+      border: 1px dashed var(--gold-deep);
+      border-radius: 50%;
+      background: color-mix(in srgb, var(--accent) 14%, transparent);
+      font-size: 3.6em;
+      line-height: 1;
+    }
+
+    .front-name {
+      font-family: var(--serif);
+      font-size: 1.55em;
+      font-weight: 700;
+      line-height: 1.2;
+      word-break: keep-all;
+    }
+
+    .front-en {
+      margin-top: 0.4em;
+      color: var(--gold-deep);
+      font-size: 0.62em;
+      letter-spacing: 0.34em;
+      text-indent: 0.34em;
+    }
+
+    .front-msg {
+      margin-top: auto;
+      font-size: 0.86em;
+      line-height: 1.55;
+      word-break: keep-all;
+    }
+
+    /* 기울이는 방향을 따라 움직이는 광택. --mx, --my, --shine 은 스크립트가 넣는다 */
+    .sheen {
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(circle at var(--mx, 50%) var(--my, 50%), rgba(255, 255, 255, 0.75), transparent 46%),
+        linear-gradient(115deg, transparent 20%, rgba(255, 170, 220, 0.22) 38%, rgba(140, 200, 255, 0.24) 50%, rgba(200, 255, 190, 0.2) 62%, transparent 80%);
+      background-position: 0 0, var(--mx, 50%) 0;
+      background-size: 100% 100%, 220% 100%;
+      opacity: var(--shine, 0.3);
+      pointer-events: none;
+    }
+
+    /* ================================================================
+       다시 뽑기 버튼
+       ================================================================ */
+    .actions {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: calc(env(safe-area-inset-bottom) + 28px);
+      z-index: 5;
+      display: flex;
+      justify-content: center;
+      pointer-events: none;
+    }
+
+    .btn {
+      min-width: 168px;
+      min-height: 50px;
+      padding: 0 28px;
+      border: 1.5px solid var(--gold);
+      border-radius: 999px;
+      background: rgba(232, 199, 122, 0.12);
+      color: var(--gold);
+      font: 700 16px/1 var(--sans);
+      letter-spacing: 0.02em;
+      opacity: 0;
+      transform: translateY(16px);
+      transition: opacity 0.35s, transform 0.35s, background 0.2s;
+      cursor: pointer;
+      -webkit-backdrop-filter: blur(6px);
+      backdrop-filter: blur(6px);
+    }
+    .app[data-phase="result"] .btn {
+      opacity: 1;
+      transform: none;
+      pointer-events: auto;
+    }
+    .btn:active { background: rgba(232, 199, 122, 0.3); }
+    .btn:focus-visible { outline: 2px solid #fff; outline-offset: 3px; }
+
+    /* 화면에는 안 보이고 화면 낭독기만 읽는 글 */
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip-path: inset(50%);
+      white-space: nowrap;
+    }
+
+    /* 움직임 줄이기 설정: 계속 도는 장식을 멈춘다 */
+    @media (prefers-reduced-motion: reduce) {
+      .stars i,
+      .slot::after { animation: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <main class="app" id="app" data-phase="intro">
+    <div class="stars" id="stars" aria-hidden="true"><i></i><i></i><i></i></div>
+
+    <header class="head" id="head">
+      <p class="eyebrow">MY SHOPPING TYPE</p>
+      <h1 class="title" id="title">나의 쇼핑 타입은?</h1>
+      <p class="sub" id="sub">카드를 섞고 있어요</p>
+    </header>
+
+    <div class="slot" id="slot" aria-hidden="true"></div>
+    <canvas class="sparks" id="sparks" aria-hidden="true"></canvas>
+
+    <!-- ================================================================
+         펼쳐지는 카드 — 장수만큼 반복한다. 개수를 바꾸면 부채꼴도 그 수로 펼쳐진다
+         .back  : 뒷면 (CSS 배경)
+         .front : 앞면. 뽑히면 아래 #results 의 결과 하나가 이 안으로 들어온다
+         ================================================================ -->
+    <div class="table" id="table" role="group" aria-label="카드 목록">
+      <button type="button" class="card"><span class="card-inner"><span class="face back"></span><span class="face front"></span></span></button>
+      <button type="button" class="card"><span class="card-inner"><span class="face back"></span><span class="face front"></span></span></button>
+      <button type="button" class="card"><span class="card-inner"><span class="face back"></span><span class="face front"></span></span></button>
+      <button type="button" class="card"><span class="card-inner"><span class="face back"></span><span class="face front"></span></span></button>
+      <button type="button" class="card"><span class="card-inner"><span class="face back"></span><span class="face front"></span></span></button>
+      <button type="button" class="card"><span class="card-inner"><span class="face back"></span><span class="face front"></span></span></button>
+      <button type="button" class="card"><span class="card-inner"><span class="face back"></span><span class="face front"></span></span></button>
+    </div>
+
+    <!-- ================================================================
+         결과 카드 앞면 — 쇼핑 타입마다 하나. 디자인 시안대로 여기를 고친다
+         어떤 타입을 보여 줄지: 주소의 ?type=planner → 없으면 <main data-result="planner"> → 없으면 무작위
+         아이콘(.front-art)은 이모지 한 글자. <img class="front-art" src="..." alt=""> 로 바꿔도 된다
+         ================================================================ -->
+    <div class="results" id="results" hidden>
+
+      <div class="result" data-type="planner">
+        <span class="front-frame">
+          <span class="front-no">TYPE 01</span>
+          <span class="front-art" aria-hidden="true">📝</span>
+          <strong class="front-name">꼼꼼 플래너</strong>
+          <span class="front-en">THE PLANNER</span>
+          <span class="front-msg">살 것만 정확히! 리스트 없이는 결제도 없어요.</span>
+        </span>
+      </div>
+
+      <div class="result" data-type="impulse">
+        <span class="front-frame">
+          <span class="front-no">TYPE 02</span>
+          <span class="front-art" aria-hidden="true">⚡</span>
+          <strong class="front-name">번개 지름러</strong>
+          <span class="front-en">THE IMPULSE</span>
+          <span class="front-msg">마음에 들면 바로 결제! 고민은 배송만 늦출 뿐이에요.</span>
+        </span>
+      </div>
+
+      <div class="result" data-type="saver">
+        <span class="front-frame">
+          <span class="front-no">TYPE 03</span>
+          <span class="front-art" aria-hidden="true">💰</span>
+          <strong class="front-name">가성비 헌터</strong>
+          <span class="front-en">THE HUNTER</span>
+          <span class="front-msg">최저가를 찾을 때까지 포기하지 않는 비교의 달인이에요.</span>
+        </span>
+      </div>
+
+      <div class="result" data-type="trend">
+        <span class="front-frame">
+          <span class="front-no">TYPE 04</span>
+          <span class="front-art" aria-hidden="true">✨</span>
+          <strong class="front-name">트렌드 세터</strong>
+          <span class="front-en">THE TRENDSETTER</span>
+          <span class="front-msg">신상과 유행은 누구보다 먼저! 내가 사면 곧 유행이에요.</span>
+        </span>
+      </div>
+
+      <div class="result" data-type="cart">
+        <span class="front-frame">
+          <span class="front-no">TYPE 05</span>
+          <span class="front-art" aria-hidden="true">🛒</span>
+          <strong class="front-name">장바구니 수집가</strong>
+          <span class="front-en">THE COLLECTOR</span>
+          <span class="front-msg">담아 두는 것만으로도 행복해요. 결제는 천천히, 신중하게.</span>
+        </span>
+      </div>
+
+      <div class="result" data-type="gift">
+        <span class="front-frame">
+          <span class="front-no">TYPE 06</span>
+          <span class="front-art" aria-hidden="true">🎁</span>
+          <strong class="front-name">선물 요정</strong>
+          <span class="front-en">THE GIVER</span>
+          <span class="front-msg">내 것보다 남 줄 것을 고를 때 더 설레는 타입이에요.</span>
+        </span>
+      </div>
+
+    </div>
+
+    <div class="actions">
+      <button type="button" class="btn" id="retry" disabled>다시 뽑기</button>
+    </div>
+
+    <p class="sr-only" id="live" aria-live="polite"></p>
+  </main>
+
+  <script>
+    (function () {
+      'use strict';
+
+      /* ================================================================
+         조절값 — 움직임은 여기서 바꾼다
+         ================================================================ */
+      const FAN_MAX_ANGLE = 24;     // 부채꼴 한쪽 최대 각도 (도)
+      const LIFT = 0.36;            // 닿은 카드가 솟는 높이 (펼친 카드 높이의 배수)
+      const PUSH = 2.6;             // 닿은 카드 양옆이 비켜나는 각도 (도)
+      const PICK_DISTANCE = 0.15;   // 뽑힘 판정: 화면 높이의 이 비율만큼 끌어 올리면 뽑힌다
+      const PULL_START = 14;        // 이만큼(px) 위로 움직이면 훑기에서 끌어 올리기로 바뀐다
+      const SHUFFLE_COUNT = 2;      // 카드를 섞는 횟수 (갈라졌다 합쳐지는 것이 1번)
+      const SHUFFLE_TIME = 0.5;     // 섞기 1번에 걸리는 시간 (초)
+      const DEAL_GAP = 0.085;       // 카드를 펼칠 때 한 장 사이 간격 (초)
+      const TILT_MAX = 16;          // 결과 카드를 끌 때 기울어지는 최대 각도 (도)
+      const SPARK_COUNT = 64;       // 공개 순간 반짝이 수
+
+      // 스프링 [탄성, 감쇠]. 탄성이 클수록 빠르고, 감쇠가 작을수록 많이 출렁인다
+      const SPRING = {
+        deck: [140, 18],    // 더미로 모일 때
+        deal: [110, 15],    // 더미에서 펼쳐질 때
+        fan: [300, 25],     // 훑을 때
+        pull: [600, 40],    // 손가락을 따라 끌려올 때
+        center: [95, 14],   // 뽑힌 카드가 가운데로 날아올 때
+        away: [60, 13],     // 나머지 카드가 사라질 때
+        flip: [70, 11],     // 뒤집힐 때
+        tilt: [200, 20],    // 기울 때
+      };
+      const STEP = 1 / 120;  // 계산 간격 (초)
+      const PROPS = ['x', 'y', 'r', 's', 'f', 'tx', 'ty'];  // 위치, 회전, 크기, 뒤집힘, 기울기
+
+      const app = document.getElementById('app');
+      const table = document.getElementById('table');
+      const head = document.getElementById('head');
+      const titleEl = document.getElementById('title');
+      const subEl = document.getElementById('sub');
+      const slot = document.getElementById('slot');
+      const retryBtn = document.getElementById('retry');
+      const live = document.getElementById('live');
+      const starLayers = Array.from(document.querySelectorAll('#stars i'));
+      const canvas = document.getElementById('sparks');
+      const ctx = canvas.getContext('2d');
+      const motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+      // 화면 크기에서 계산하는 값 (layout 에서 채운다)
+      const view = {
+        left: 0, top: 0, w: 0, h: 0,
+        cardW: 0, cardH: 0, fit: 1,  // 카드 크기(CSS 값), 공개될 때 배율(화면이 낮으면 1 보다 작다)
+        fanW: 0, fanH: 0, fanScale: 0,  // 펼친 카드 크기(CSS 값)
+        radius: 0, pivotX: 0, pivotY: 0, maxAngle: 0, stepAngle: 0,  // 부채꼴
+        centerY: 0, deckY: 0, pickDistance: 0,
+      };
+
+      let phase = 'intro';   // intro → dealing → pick → reveal → result → gather → dealing …
+      let hover = -1;        // 손가락이 닿은 카드 번호
+      let drag = null;       // 누르고 있는 동안의 정보
+      let tilt = null;       // 결과 카드 기울기 { nx, ny } (-1 ~ 1)
+      let picked = null;     // 뽑힌 카드
+      let lastResult = null; // 직전에 나온 결과 (무작위일 때 연속으로 같은 결과가 나오지 않게)
+      let usedKeyboard = false;
+      let tasks = [];        // 예약한 동작
+      let sparks = [];
+      let sparksDirty = false;
+      let drift = 0;         // 광택이 저절로 흐르는 정도 (0 ~ 1)
+      let time = 0;
+      let lastFrame = 0;
+      let frameId = 0;
+
+      const rad = (deg) => deg * Math.PI / 180;
+      const deg = (r) => r * 180 / Math.PI;
+      const clamp = (v, min, max) => Math.max(min, Math.min(max, v));
+      const rand = (min, max) => min + Math.random() * (max - min);
+
+      /* ================================================================
+         카드 — 마크업(#table 안의 .card)을 읽어 움직임 상태를 붙인다
+         ================================================================ */
+      const resultsBox = document.getElementById('results');
+      const results = Array.from(resultsBox.querySelectorAll('.result'));
+
+      const cards = Array.from(table.querySelectorAll('.card')).map((el, index) => {
+        const front = el.querySelector('.front');
+        // 광택은 내용이 아니라 효과라서 스크립트가 붙인다
+        const sheen = document.createElement('span');
+        sheen.className = 'sheen';
+        front.appendChild(sheen);
+        el.tabIndex = -1;
+
+        return {
+          el,
+          inner: el.querySelector('.card-inner'),
+          front,
+          sheen,
+          index,
+          mode: 'deck',          // deck | fan | pull | center | away
+          cur: { x: 0, y: 0, r: 0, s: 0.2, f: 0, tx: 0, ty: 0 },
+          vel: { x: 0, y: 0, r: 0, s: 0, f: 0, tx: 0, ty: 0 },
+          opacity: 0,
+          fade: 1,               // 목표 불투명도
+          flipTo: 0,             // 가운데에 있을 때 목표 뒤집힘 각도
+          away: null,            // 사라질 때 목표
+          offsetX: 0,            // 섞는 동작용
+          offsetR: 0,
+          jitter: rand(-2, 2),   // 더미에서 살짝 어긋난 각도
+          result: null,          // 앞면에 들어와 있는 결과
+          burst: false,
+          z: '',
+        };
+      });
+      const FAN_COUNT = cards.length;  // 펼치는 카드 수 = 마크업의 카드 수
+
+      /* ================================================================
+         화면 크기에 맞춰 배치 값 계산
+         ================================================================ */
+      function layout() {
+        const rect = app.getBoundingClientRect();
+        const safeBottom = parseFloat(getComputedStyle(app).paddingBottom) || 0;
+        const v = view;
+
+        v.left = rect.left;
+        v.top = rect.top;
+        v.w = rect.width;
+        v.h = rect.height;
+
+        // 카드 크기는 CSS(--card-w, --card-ratio)가 정한다. 여기서는 그려진 크기를 읽기만 한다
+        v.cardW = cards[0].el.offsetWidth;
+        v.cardH = cards[0].el.offsetHeight;
+
+        // 공개된 카드가 안내 문구와 버튼 사이에 안 들어가면 그만큼 줄여서 보여 준다
+        const zoneTop = head.offsetHeight + 14;
+        const zoneBottom = v.h - safeBottom - 28 - 50 - 16;   // 버튼 아래 여백 28 + 버튼 높이 50 + 간격 16
+        const zoneH = Math.max(zoneBottom - zoneTop, 90);
+        v.fit = Math.min(1, zoneH / v.cardH);
+
+        // 펼친 카드 크기도 CSS(--fan-w)가 정한다. 그 너비로 그려진 .slot 을 읽는다
+        v.fanW = slot.offsetWidth;
+        v.fanScale = v.fanW / v.cardW;
+        v.fanH = v.cardH * v.fanScale;
+
+        // 부채꼴: 화면 아래 바깥의 한 점(pivot)을 중심으로 한 원호. 양 끝 카드가 화면 안에 들어오게 각도를 정한다
+        v.radius = v.w * 1.2;
+        v.maxAngle = Math.min(rad(FAN_MAX_ANGLE), Math.asin(clamp((v.w / 2 - v.fanW * 0.55) / v.radius, 0, 1)));
+        v.stepAngle = v.maxAngle * 2 / Math.max(1, FAN_COUNT - 1);
+        v.pivotX = v.w / 2;
+        v.pivotY = v.h - safeBottom - 52 - v.fanH / 2 + v.radius;
+
+        v.centerY = zoneTop + zoneH * 0.45;   // 가운데보다 살짝 위
+        v.deckY = v.h * 0.45;
+        v.pickDistance = v.h * PICK_DISTANCE;
+
+        app.style.setProperty('--deck-y', v.deckY + 'px');
+
+        const ratio = Math.min(window.devicePixelRatio || 1, 2);
+        canvas.width = Math.round(v.w * ratio);
+        canvas.height = Math.round(v.h * ratio);
+        ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
+
+        buildStars();
+      }
+
+      function buildStars() {
+        starLayers.forEach((el) => {
+          const shadows = [];
+          for (let i = 0; i < 16; i++) {
+            const size = Math.random() < 0.25 ? 1 : 0;
+            shadows.push(rand(0, view.w).toFixed(0) + 'px ' + rand(0, view.h * 0.8).toFixed(0) + 'px 0 ' + size + 'px rgba(255,255,255,' + rand(0.35, 0.95).toFixed(2) + ')');
+          }
+          el.style.boxShadow = shadows.join(',');
+        });
+      }
+
+      /* ================================================================
+         카드가 향할 자리 — 카드 상태(mode)에 따라 매번 계산한다
+         ================================================================ */
+      // 부채꼴에서 i 번째 카드의 자리. 닿은 카드는 솟고 양옆은 비켜난다
+      function fanSlot(i, t) {
+        const v = view;
+        let angle = (i - (FAN_COUNT - 1) / 2) * v.stepAngle;
+        let lift = 0;
+        let scale = v.fanScale;
+
+        if (hover !== -1) {
+          const gap = i - hover;
+          if (gap === 0) {
+            lift = LIFT * v.fanH;
+            scale *= 1.12;
+          } else {
+            angle += Math.sign(gap) * rad(PUSH) * Math.pow(0.5, Math.abs(gap) - 1);
+          }
+        } else if (phase === 'pick' && !motionQuery.matches) {
+          // 아무도 안 건드릴 때는 잔물결이 지나가며 골라 보라고 알려 준다
+          lift = v.fanH * 0.05 * Math.max(0, Math.sin(time * 1.7 - i * 0.8));
+        }
+
+        t.x = v.pivotX + (v.radius + lift) * Math.sin(angle);
+        t.y = v.pivotY - (v.radius + lift) * Math.cos(angle);
+        t.r = deg(angle);
+        t.s = scale;
+        return t;
+      }
+
+      function targetOf(card) {
+        const v = view;
+        const t = { x: v.w / 2, y: v.deckY, r: 0, s: v.fanScale, f: 0, tx: 0, ty: 0 };
+
+        if (card.mode === 'deck') {
+          t.x += card.offsetX;
+          t.y -= card.index * 1.2;   // 더미 두께
+          t.r = card.jitter + card.offsetR;
+          t.s = v.fanScale * 1.18;
+        } else if (card.mode === 'fan') {
+          fanSlot(card.index, t);
+        } else if (card.mode === 'pull' && drag) {
+          // 손가락을 따라 올라오며 점점 바로 서고 커진다
+          const progress = clamp(drag.dy / v.pickDistance, 0, 1);
+          const angle = (card.index - (FAN_COUNT - 1) / 2) * v.stepAngle;
+          t.x = v.pivotX + v.radius * Math.sin(angle) + drag.dx * 0.7;
+          t.y = v.pivotY - v.radius * Math.cos(angle) - LIFT * v.fanH - Math.max(drag.dy, -8);
+          t.r = deg(angle) * (1 - progress);
+          t.s = v.fanScale * (1.12 + 0.3 * progress);
+        } else if (card.mode === 'center') {
+          const still = motionQuery.matches;
+          t.y = v.centerY + (still ? 0 : Math.sin(time * 1.3) * 5);  // 둥실둥실
+          t.s = v.fit;
+          t.f = card.flipTo;
+          // 끌 때만 기울인다. 가만히 있을 때까지 기울여 두면 브라우저가 카드 글자를 흐리게 그린다
+          if (tilt) {
+            t.tx = -tilt.ny * TILT_MAX * 0.85;
+            t.ty = tilt.nx * TILT_MAX;
+          }
+        } else if (card.mode === 'away' && card.away) {
+          t.x = card.away.x;
+          t.y = card.away.y;
+          t.r = card.away.r;
+        }
+        return t;
+      }
+
+      function springOf(card) {
+        if (card.mode === 'fan') return phase === 'dealing' ? SPRING.deal : SPRING.fan;
+        return SPRING[card.mode] || SPRING.fan;
+      }
+
+      /* ================================================================
+         계산 한 번 — 스프링으로 목표에 다가간다
+         ================================================================ */
+      function step(dt) {
+        const still = motionQuery.matches;
+        time += dt;
+
+        // 예약한 동작 가운데 시간이 된 것을 실행
+        if (tasks.length) {
+          const due = tasks.filter((task) => task.at <= time);
+          if (due.length) {
+            tasks = tasks.filter((task) => task.at > time);
+            due.forEach((task) => task.run());
+          }
+        }
+
+        // 결과 화면에서 손을 떼고 있으면 광택만 천천히 흐른다 (카드는 기울이지 않는다)
+        const drifting = phase === 'result' && !tilt && !still;
+        drift += ((drifting ? 1 : 0) - drift) * Math.min(1, dt * 3);
+
+        cards.forEach((card) => {
+          const target = targetOf(card);
+          const base = springOf(card);
+
+          PROPS.forEach((prop) => {
+            const isFlip = prop === 'f';
+            const isTilt = prop === 'tx' || prop === 'ty';
+
+            if (still && !isFlip && !isTilt) {
+              // 움직임 줄이기: 날아가는 과정 없이 바로 자리로
+              card.cur[prop] = target[prop];
+              card.vel[prop] = 0;
+              return;
+            }
+            let spring = isFlip ? SPRING.flip : isTilt ? SPRING.tilt : base;
+            if (still) spring = [200, 28];  // 출렁임 없이 빠르게
+            card.vel[prop] += (-spring[0] * (card.cur[prop] - target[prop]) - spring[1] * card.vel[prop]) * dt;
+            card.cur[prop] += card.vel[prop] * dt;
+
+            // 회전은 거의 다 왔으면 딱 맞춘다. 조금이라도 기울어 있으면 글자가 흐리게 그려지기 때문
+            if ((isFlip || isTilt) && Math.abs(card.cur[prop] - target[prop]) < 0.05 && Math.abs(card.vel[prop]) < 0.5) {
+              card.cur[prop] = target[prop];
+              card.vel[prop] = 0;
+            }
+          });
+
+          card.opacity += (card.fade - card.opacity) * Math.min(1, dt * 10);
+
+          // 뒤집히다 앞면이 보이기 시작하는 순간
+          if (card === picked && !card.burst && card.cur.f > 90) {
+            card.burst = true;
+            onReveal();
+          }
+        });
+
+        stepSparks(dt);
+      }
+
+      function render() {
+        const v = view;
+        cards.forEach((card) => {
+          const c = card.cur;
+          card.el.style.transform =
+            'translate3d(' + (c.x - v.cardW / 2).toFixed(2) + 'px,' + (c.y - v.cardH / 2).toFixed(2) + 'px,0) ' +
+            'rotate(' + c.r.toFixed(2) + 'deg) scale(' + c.s.toFixed(4) + ')';
+          card.inner.style.transform = 'rotateX(' + c.tx.toFixed(2) + 'deg) rotateY(' + (c.f + c.ty).toFixed(2) + 'deg)';
+          card.el.style.opacity = card.opacity > 0.995 ? '1' : card.opacity.toFixed(3);
+
+          // 겹치는 순서: 뽑힌 카드 > 닿은 카드 > 왼쪽에서 오른쪽
+          const z = String(card === picked ? 100 : (card.index === hover && phase === 'pick') ? 50 : card.index);
+          if (z !== card.z) {
+            card.z = z;
+            card.el.style.zIndex = z;
+          }
+        });
+
+        // 광택은 기울어진 쪽으로 옮겨 가고, 많이 기울수록 진해진다
+        if (picked) {
+          const c = picked.cur;
+          const lightX = c.ty + Math.cos(time * 0.7) * 8 * drift;
+          const lightY = c.tx + Math.sin(time * 0.9) * 5 * drift;
+          picked.front.style.setProperty('--mx', (50 + lightX * 3.1).toFixed(1) + '%');
+          picked.front.style.setProperty('--my', (50 - lightY * 3.1).toFixed(1) + '%');
+          picked.front.style.setProperty('--shine', Math.min(1, 0.3 + Math.hypot(lightX, lightY) / TILT_MAX * 0.7).toFixed(2));
+        }
+
+        drawSparks();
+      }
+
+      function frame(now) {
+        // 탭을 떠나 있다 돌아와도 한꺼번에 튀지 않게 경과 시간을 제한한다
+        let elapsed = Math.min((now - lastFrame) / 1000, 0.05);
+        lastFrame = now;
+        while (elapsed > 0) {
+          const dt = Math.min(STEP, elapsed);
+          step(dt);
+          elapsed -= dt;
+        }
+        render();
+        frameId = requestAnimationFrame(frame);
+      }
+
+      function start() {
+        cancelAnimationFrame(frameId);
+        lastFrame = performance.now();
+        frameId = requestAnimationFrame(frame);
+      }
+
+      // seconds 초 뒤에 실행. 화면이 가려져 계산이 멈추면 같이 멈춘다
+      function after(seconds, run) {
+        tasks.push({ at: time + seconds, run });
+      }
+
+      /* ================================================================
+         반짝이 입자
+         ================================================================ */
+      const SPARK_COLORS = ['#FFF4D0', '#E8C77A', '#FFFFFF', '#C9B4FF'];
+
+      // 카드 테두리에서 바깥으로 터져 나온다 (가운데에서 시작하면 카드에 가려 보이지 않는다)
+      function burst(x, y, halfW, halfH) {
+        if (motionQuery.matches) return;
+        for (let i = 0; i < SPARK_COUNT; i++) {
+          const angle = rand(0, Math.PI * 2);
+          const dirX = Math.cos(angle);
+          const dirY = Math.sin(angle);
+          const edge = Math.min(halfW / Math.abs(dirX), halfH / Math.abs(dirY)) * 0.9;
+          const speed = rand(90, 520);
+          sparks.push({
+            x: x + dirX * edge,
+            y: y + dirY * edge,
+            vx: dirX * speed,
+            vy: dirY * speed - 60,
+            age: 0,
+            life: rand(0.8, 1.7),
+            size: rand(3, 9),
+            blink: rand(0, 6),
+            color: SPARK_COLORS[i % SPARK_COLORS.length],
+          });
+        }
+      }
+
+      function stepSparks(dt) {
+        if (!sparks.length) return;
+        sparks.forEach((p) => {
+          p.vx *= 1 - 2.4 * dt;    // 공기 저항
+          p.vy *= 1 - 2.4 * dt;
+          p.vy += 240 * dt;        // 천천히 가라앉음
+          p.x += p.vx * dt;
+          p.y += p.vy * dt;
+          p.age += dt;
+        });
+        sparks = sparks.filter((p) => p.age < p.life);
+      }
+
+      function drawSparks() {
+        if (!sparks.length && !sparksDirty) return;
+        ctx.clearRect(0, 0, view.w, view.h);
+        sparksDirty = sparks.length > 0;
+        ctx.globalCompositeOperation = 'lighter';
+        sparks.forEach((p) => {
+          const fade = Math.pow(1 - p.age / p.life, 1.4);
+          const size = p.size * (0.6 + 0.4 * Math.sin(p.age * 22 + p.blink));
+          ctx.globalAlpha = fade;
+          ctx.fillStyle = p.color;
+          // 네 갈래 별 모양
+          ctx.beginPath();
+          ctx.moveTo(p.x, p.y - size);
+          ctx.quadraticCurveTo(p.x, p.y, p.x + size, p.y);
+          ctx.quadraticCurveTo(p.x, p.y, p.x, p.y + size);
+          ctx.quadraticCurveTo(p.x, p.y, p.x - size, p.y);
+          ctx.quadraticCurveTo(p.x, p.y, p.x, p.y - size);
+          ctx.fill();
+        });
+        ctx.globalAlpha = 1;
+        ctx.globalCompositeOperation = 'source-over';
+      }
+
+      /* ================================================================
+         단계 전환
+         ================================================================ */
+      function setPhase(next) {
+        phase = next;
+        app.dataset.phase = next;
+        retryBtn.disabled = next !== 'result';
+        cards.forEach((card) => {
+          card.el.tabIndex = next === 'pick' ? 0 : -1;
+          if (next === 'pick') card.el.setAttribute('aria-label', (card.index + 1) + '번째 카드');
+        });
+      }
+
+      // 안내 문구를 살짝 사라졌다 나타나게 바꾼다
+      function setHead(title, sub) {
+        head.classList.add('is-swap');
+        after(0.18, () => {
+          titleEl.textContent = title;
+          subEl.textContent = sub;
+          head.classList.remove('is-swap');
+        });
+      }
+
+      function vibrate(pattern) {
+        if (navigator.vibrate) {
+          try { navigator.vibrate(pattern); } catch (error) { /* 진동을 막아 둔 기기 */ }
+        }
+      }
+
+      // 더미에서 한 장씩 부채꼴로 펼친다. 맨 위 카드(오른쪽 끝 자리)부터 나간다
+      function deal() {
+        setPhase('dealing');
+        hover = -1;
+        for (let n = 0; n < FAN_COUNT; n++) {
+          const card = cards[FAN_COUNT - 1 - n];
+          after(0.2 + n * DEAL_GAP, () => { card.mode = 'fan'; });
+        }
+        after(0.2 + FAN_COUNT * DEAL_GAP + 0.45, () => {
+          setPhase('pick');
+          setHead('카드를 한 장 뽑아 주세요', '훑어보다가 마음이 가는 카드를 위로 올리세요');
+          if (usedKeyboard) cards[Math.floor(FAN_COUNT / 2)].el.focus();
+        });
+      }
+
+      function pick(index) {
+        const card = cards[index];
+        if (phase !== 'pick' || !card) return;
+
+        const result = chooseResult();
+        lastResult = result;
+
+        setPhase('reveal');
+        setHead('두근두근…', '');
+        vibrate(15);
+        slot.style.setProperty('--pull', 0);
+        drag = null;
+        tilt = null;
+        hover = -1;
+        picked = card;
+
+        // 결과 내용을 뽑힌 카드의 앞면 안으로 옮긴다 (광택보다 아래에)
+        if (result) card.front.insertBefore(result, card.sheen);
+        card.result = result;
+        card.mode = 'center';
+        card.flipTo = 0;
+        card.burst = false;
+        after(0.3, () => { card.flipTo = 180; });
+
+        // 나머지 카드는 가운데에서 먼 쪽부터 아래로 흩어진다
+        cards.forEach((other) => {
+          if (other === card) return;
+          const side = other.index < index ? -1 : 1;
+          after(0.03 * Math.abs(other.index - index), () => {
+            other.mode = 'away';
+            other.away = { x: other.cur.x + side * view.w * 0.3, y: view.h + view.fanH, r: other.cur.r + side * 50 };
+            other.fade = 0;
+          });
+        });
+      }
+
+      // 앞면이 보이기 시작하는 순간: 빛과 반짝이
+      function onReveal() {
+        const label = labelOf(picked.result);
+        burst(view.w / 2, view.centerY, view.cardW * view.fit / 2, view.cardH * view.fit / 2);
+        vibrate(25);
+        setHead('당신은 이런 쇼핑러!', '카드를 끌어서 기울여 보세요');
+
+        after(0.7, () => {
+          setPhase('result');
+          picked.el.setAttribute('aria-label', label);
+          live.textContent = '나의 쇼핑 타입은 ' + label;
+          if (usedKeyboard) retryBtn.focus();
+        });
+      }
+
+      // 카드를 더미로 모아 섞고 다시 펼친다
+      function retry() {
+        if (phase !== 'result') return;
+        const v = view;
+        setPhase('gather');
+        setHead('카드를 다시 섞을게요', '');
+        live.textContent = '';
+        tilt = null;
+        drag = null;
+
+        cards.forEach((card) => {
+          if (card !== picked) {
+            // 화면 아래에서 다시 올라온다
+            card.cur.x = v.w / 2 + rand(-60, 60);
+            card.cur.y = v.h + v.fanH;
+            card.cur.r = rand(-30, 30);
+          }
+          card.mode = 'deck';
+          card.fade = 1;
+          card.flipTo = 0;
+          card.jitter = rand(-2, 2);
+        });
+        // 뒷면으로 돌아간 뒤 결과 내용을 원래 자리(#results)로 돌려놓는다
+        const shown = picked;
+        after(0.5, () => {
+          if (shown.result) resultsBox.appendChild(shown.result);
+          shown.result = null;
+          picked = null;
+        });
+
+        shuffle(0.7, deal);
+      }
+
+      // 더미를 섞는다: 좌우로 갈라졌다 합쳐지기를 SHUFFLE_COUNT 번 한다. 끝나면 done 을 부른다
+      function shuffle(delay, done) {
+        if (motionQuery.matches) {
+          after(delay, done);
+          return;
+        }
+        const split = (direction) => cards.forEach((card) => {
+          const side = card.index % 2 ? 1 : -1;
+          card.offsetX = direction * side * view.fanW * 0.55;
+          card.offsetR = direction * side * 7;
+        });
+        for (let n = 0; n < SHUFFLE_COUNT; n++) {
+          const at = delay + n * SHUFFLE_TIME;
+          after(at, () => split(n % 2 ? -1 : 1));          // 갈라짐 (번갈아 반대 방향)
+          after(at + SHUFFLE_TIME / 2, () => split(0));    // 합쳐짐
+        }
+        after(delay + SHUFFLE_COUNT * SHUFFLE_TIME, done);
+      }
+
+      // 보여 줄 결과: 주소의 ?type= → <main data-result=""> → 둘 다 없으면 무작위
+      function chooseResult() {
+        const wanted = new URLSearchParams(location.search).get('type') || app.dataset.result;
+        const fixed = results.find((result) => result.dataset.type === wanted);
+        if (fixed) return fixed;
+        const others = results.filter((result) => result !== lastResult);
+        const pool = others.length ? others : results;
+        return pool[Math.floor(Math.random() * pool.length)] || null;
+      }
+
+      // 화면 낭독기에 읽어 줄 문구: 결과의 이름과 설명 (이미지로만 만든 경우 이미지의 alt)
+      function labelOf(result) {
+        if (!result) return '';
+        const texts = ['.front-name', '.front-msg']
+          .map((selector) => result.querySelector(selector))
+          .filter(Boolean)
+          .map((el) => el.textContent.trim());
+        const image = result.querySelector('img[alt]');
+        return texts.join('. ') || (image ? image.alt : '');
+      }
+
+      /* ================================================================
+         터치·마우스
+         ================================================================ */
+      const local = (event) => ({ x: event.clientX - view.left, y: event.clientY - view.top });
+
+      // 손가락 위치 → 카드 번호. 카드가 겹쳐 있으므로 "보이는 부분" 기준으로 고른다.
+      // loose: 훑는 중에는 손가락이 카드 위쪽으로 벗어나도 인정한다
+      function hitFan(p, loose) {
+        const v = view;
+        const distance = Math.hypot(p.x - v.pivotX, v.pivotY - p.y);
+        if (distance < v.radius - v.fanH * 0.7) return -1;
+        if (distance > v.radius + v.fanH * (loose ? 1.8 : 1.0)) return -1;
+
+        const angle = Math.atan2(p.x - v.pivotX, v.pivotY - p.y);
+        const halfWidth = v.fanW / 2 / v.radius;  // 카드 반 너비를 각도로
+        const index = Math.floor((angle + v.maxAngle + halfWidth) / v.stepAngle);
+        if (index < 0) return -1;
+        if (index > FAN_COUNT - 1) return angle <= v.maxAngle + halfWidth ? FAN_COUNT - 1 : -1;
+        return index;
+      }
+
+      // 손가락 위치 → 결과 카드 기울기. onlyInside: 카드 밖이면 기울이지 않는다 (마우스를 올리기만 했을 때)
+      function tiltOf(p, onlyInside) {
+        const nx = (p.x - view.w / 2) / (view.cardW * view.fit / 2);
+        const ny = (p.y - view.centerY) / (view.cardH * view.fit / 2);
+        if (onlyInside && (Math.abs(nx) > 1.1 || Math.abs(ny) > 1.1)) return null;
+        return { nx: clamp(nx, -1, 1), ny: clamp(ny, -1, 1) };
+      }
+
+      function capture(event) {
+        try { app.setPointerCapture(event.pointerId); } catch (error) { /* 지원하지 않는 브라우저 */ }
+      }
+
+      app.addEventListener('pointerdown', (event) => {
+        if (drag || event.target.closest('.btn')) return;
+        if (event.pointerType === 'mouse' && event.button !== 0) return;
+        const p = local(event);
+
+        if (phase === 'pick') {
+          usedKeyboard = false;
+          hover = hitFan(p, false);
+          drag = {
+            id: event.pointerId, mode: 'scrub', index: hover,
+            startX: p.x, startY: p.y,     // 누른 자리 (탭 판정용)
+            anchorX: p.x, anchorY: p.y,   // 끌어 올리기 거리를 재는 기준점
+            lastX: p.x, lastY: p.y,
+            dx: 0, dy: 0, moved: 0, time: performance.now(),
+          };
+          capture(event);
+        } else if (phase === 'result') {
+          drag = { id: event.pointerId, mode: 'tilt' };
+          tilt = tiltOf(p, false);
+          capture(event);
+        }
+      });
+
+      app.addEventListener('pointermove', (event) => {
+        if (drag && event.pointerId !== drag.id) return;
+        const p = local(event);
+
+        if (phase === 'result') {
+          if (drag) tilt = tiltOf(p, false);
+          else if (event.pointerType === 'mouse') tilt = tiltOf(p, true);
+          return;
+        }
+        if (phase !== 'pick') return;
+
+        if (!drag) {
+          if (event.pointerType === 'mouse') hover = hitFan(p, false);  // 마우스는 올리기만 해도 반응
+          return;
+        }
+
+        const stepX = p.x - drag.lastX;
+        const stepY = p.y - drag.lastY;
+        drag.lastX = p.x;
+        drag.lastY = p.y;
+        drag.moved = Math.max(drag.moved, Math.hypot(p.x - drag.startX, p.y - drag.startY));
+
+        if (drag.mode === 'scrub') {
+          // 옆으로 움직이는 동안은 기준점이 손가락을 따라온다 → 훑다가 위로 꺾는 순간부터 거리를 잰다
+          if (Math.abs(stepX) > Math.abs(stepY)) {
+            drag.anchorX = p.x;
+            drag.anchorY += (p.y - drag.anchorY) * 0.5;
+          }
+          if (p.y > drag.anchorY) drag.anchorY = p.y;
+        }
+        drag.dx = p.x - drag.anchorX;
+        drag.dy = drag.anchorY - p.y;  // 위로 올린 거리
+
+        if (drag.mode === 'scrub') {
+          if (hover !== -1 && drag.dy > PULL_START) {
+            drag.mode = 'pull';
+            drag.index = hover;
+            cards[hover].mode = 'pull';
+          } else {
+            const index = hitFan(p, true);
+            if (index !== -1) hover = index;
+          }
+        }
+
+        if (drag.mode === 'pull') {
+          slot.style.setProperty('--pull', clamp(drag.dy / view.pickDistance, 0, 1).toFixed(2));
+          if (drag.dy >= view.pickDistance) pick(drag.index);
+        }
+      });
+
+      function onPointerEnd(event) {
+        if (!drag || event.pointerId !== drag.id) return;
+        const ended = drag;
+        drag = null;
+        const isMouse = event.pointerType === 'mouse';
+
+        if (phase === 'result') {
+          tilt = isMouse ? tiltOf(local(event), true) : null;
+          return;
+        }
+        if (phase !== 'pick') return;
+
+        slot.style.setProperty('--pull', 0);
+        if (ended.mode === 'pull') {
+          cards[ended.index].mode = 'fan';  // 판정 높이 전에 놓음 → 제자리로 튕겨 돌아간다
+        } else if (event.type === 'pointerup' && ended.index !== -1 && ended.moved < 10 && performance.now() - ended.time < 500) {
+          pick(ended.index);  // 탭
+          return;
+        }
+        hover = isMouse ? hitFan(local(event), false) : -1;
+      }
+
+      app.addEventListener('pointerup', onPointerEnd);
+      app.addEventListener('pointercancel', onPointerEnd);
+
+      app.addEventListener('pointerleave', () => {
+        if (drag) return;
+        if (phase === 'pick' && !usedKeyboard) hover = -1;
+        tilt = null;
+      });
+
+      /* ================================================================
+         키보드 — 좌우 화살표로 옮기고 Enter 로 뽑는다
+         ================================================================ */
+      const indexOfCard = (el) => cards.findIndex((card) => card.el === el);
+
+      table.addEventListener('focusin', (event) => {
+        const index = indexOfCard(event.target);
+        if (phase !== 'pick' || index === -1 || drag) return;
+        let fromKeyboard = true;
+        try { fromKeyboard = event.target.matches(':focus-visible'); } catch (error) { /* 오래된 브라우저 */ }
+        if (!fromKeyboard) return;
+        usedKeyboard = true;
+        hover = index;
+      });
+
+      table.addEventListener('focusout', () => {
+        if (usedKeyboard && phase === 'pick') hover = -1;
+      });
+
+      table.addEventListener('keydown', (event) => {
+        if (phase !== 'pick') return;
+        const move = event.key === 'ArrowRight' ? 1 : event.key === 'ArrowLeft' ? -1 : 0;
+        if (!move) return;
+        event.preventDefault();
+        const current = indexOfCard(document.activeElement);
+        cards[clamp((current === -1 ? 0 : current + move), 0, FAN_COUNT - 1)].el.focus();
+      });
+
+      // 손가락 탭은 위에서 처리하므로, 여기서는 키보드로 누른 경우(detail 0)만 받는다
+      table.addEventListener('click', (event) => {
+        if (event.detail !== 0) return;
+        const index = indexOfCard(event.target.closest('.card'));
+        if (index === -1) return;
+        usedKeyboard = true;
+        pick(index);
+      });
+
+      retryBtn.addEventListener('click', (event) => {
+        usedKeyboard = event.detail === 0;
+        retry();
+      });
+
+      /* ================================================================
+         시작
+         ================================================================ */
+      window.addEventListener('resize', layout);
+
+      // 화면이 가려져 있는 동안은 계산을 멈춘다
+      document.addEventListener('visibilitychange', () => {
+        if (document.hidden) cancelAnimationFrame(frameId);
+        else start();
+      });
+
+      layout();
+
+      // 더미가 아래에서 떠오르며 나타나 → 섞이고 → 펼쳐진다
+      cards.forEach((card) => {
+        card.cur.x = view.w / 2;
+        card.cur.y = view.deckY + 40;
+        card.cur.s = view.fanScale * 0.9;
+      });
+      shuffle(0.8, deal);
+      start();
+    })();
+  </script>
+
+</body>
+</html>
